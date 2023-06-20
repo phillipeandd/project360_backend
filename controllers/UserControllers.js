@@ -39,6 +39,13 @@ const newUserRegister = async (req, res) => {
     registered_phone,
     aadhar,
   } = req.body;
+
+    // Check if password and confirm_password match
+  if (password !== confirm_password) {
+      res.send({ Message: "Password and confirm password do not match." });
+      return;
+    } 
+
   const existing_user = await UserModel.findOne({ employee_id });
 
   if (existing_user) {
