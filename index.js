@@ -22,7 +22,7 @@ app.get("/", async(req,res)=>{
 
 
 // Routes
-app.use("/", UserRoutes)
+app.use("/",  UserRoutes)
 app.use("/", TaskRoutes)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
