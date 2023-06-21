@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 // Post a User
 const newUserRegister = async (req, res) => {
   const {
-    // image,
     first_name,
     last_name,
     father_name,
@@ -113,7 +112,7 @@ const login = async (req, res) => {
         res.send({ Message: "Something went wrong, try again later" });
       }
       if (result) {
-        //console.log(user)
+  
         const token = jwt.sign({ user_id }, process.env.SECRET);
         const image = user.image;
         const first_name = user.first_name;
