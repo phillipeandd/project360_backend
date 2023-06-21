@@ -57,7 +57,7 @@ const newUserRegister = async (req, res) => {
       res.send({ Message: "Registration Failed", err });
     } else {
       const new_user = new UserModel({
-        // file: `/uploads/${req.file.filename}`,
+       
         first_name,
         last_name,
         father_name,
