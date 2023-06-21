@@ -40,11 +40,11 @@ const newUserRegister = async (req, res) => {
     aadhar,
   } = req.body;
 
-    // Check if password and confirm_password match
+  // Check if password and confirm_password match
   if (password !== confirm_password) {
-      res.send({ Message: "Password and confirm password do not match." });
-      return;
-    } 
+    res.send({ Message: "Password and confirm password do not match." });
+    return;
+  }
 
   const existing_user = await UserModel.findOne({ employee_id });
 
@@ -54,7 +54,7 @@ const newUserRegister = async (req, res) => {
   }
   bcrypt.hash(password, 4, async function (err, hash) {
     if (err) {
-      res.send({ Message: "Signup failed ..please try again.." });
+      res.send({ Message: "Registration Failed", err });
     } else {
       const new_user = new UserModel({
         // file: `/uploads/${req.file.filename}`,
@@ -206,21 +206,20 @@ const getUser = async (req, res) => {
 };
 
 // Get User By Id
-const getSingleUser = async (req,res) =>{
-  const id = req.params.id
-  try{
-    const singleUser = await UserModel.findOne({ _id: id })
+const getSingleUser = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const singleUser = await UserModel.findOne({ _id: id });
 
     res.status(404).send({ Message: "Single User By Id", singleUser });
-  }
-  catch(error){
+  } catch (error) {
     res.status(500).send(error);
   }
-}
+};
 
 module.exports = {
   newUserRegister,
   login,
   getUser,
-  getSingleUser
+  getSingleUser,
 };
