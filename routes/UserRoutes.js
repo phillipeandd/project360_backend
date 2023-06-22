@@ -9,8 +9,7 @@ router.post("/signuser", UserController.newUserRegister);
 router.post("/login", UserController.login);
 router.get("/users", UserController.getUser);
 router.get("/singleUser/:id", UserController.getSingleUser);
+router.delete("/deleteUser/:id", UserController.deleteUser);
+
 
 module.exports = router;
-
-
-

@@ -216,9 +216,21 @@ const getSingleUser = async (req, res) => {
   }
 };
 
+// Delete Task
+const deleteUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    await UserModel.deleteOne({ _id: id });
+    res.send({ Message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
 module.exports = {
   newUserRegister,
   login,
   getUser,
   getSingleUser,
+  deleteUser
 };
