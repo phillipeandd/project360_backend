@@ -216,6 +216,23 @@ const getSingleUser = async (req, res) => {
   }
 };
 
+// Edit User
+const editUser = async (req, res) => {
+  try {
+    const users = await UserModel.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+
+    if (!users) {
+      return res.status(404).send();
+    }
+
+    res.send({ Message: "User updated successfully",users});
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
+
 // Delete Task
 const deleteUser = async (req, res) => {
   try {
@@ -232,5 +249,6 @@ module.exports = {
   login,
   getUser,
   getSingleUser,
-  deleteUser
+  deleteUser,
+  editUser
 };
