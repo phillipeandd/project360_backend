@@ -56,7 +56,6 @@ const newUserRegister = async (req, res) => {
       res.send({ Message: "Registration Failed", err });
     } else {
       const new_user = new UserModel({
-       
         first_name,
         last_name,
         father_name,
@@ -112,7 +111,6 @@ const login = async (req, res) => {
         res.send({ Message: "Something went wrong, try again later" });
       }
       if (result) {
-  
         const token = jwt.sign({ user_id }, process.env.SECRET);
         const image = user.image;
         const first_name = user.first_name;
@@ -222,12 +220,10 @@ const editUser = async (req, res) => {
     const users = await UserModel.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-
     if (!users) {
       return res.status(404).send();
     }
-
-    res.send({ Message: "User updated successfully",users});
+    res.send({ Message: "User updated successfully", users });
   } catch (error) {
     res.status(400).send(error);
   }
@@ -250,5 +246,5 @@ module.exports = {
   getUser,
   getSingleUser,
   deleteUser,
-  editUser
+  editUser,
 };
