@@ -1,40 +1,75 @@
-const AttendenceModel = require("../models/AttendenceModel");
-
-// Attendence Record
+const {AttendenceModel} = require("../models/AttendenceModel");
+const UserModel = require("../models/UserModel");
+// Create a new attendance record
 const createAttendanceRecord = async (req, res) => {
+  // try {
+  //   const attendance = new AttendenceModel(req.body);
+  //   await attendance.save();
+  //   res.status(201).json(attendance);
+  // } catch (error) {
+  //   res.status(400).json({ error: error.message });
+  // }
+  // try {
+  //   const { _id, date, loginTime, logoutTime, breakInTime, breakOutTime, overtime } = req.body;
+
+  //   // Check if the user exists
+  //   const user = await UserModel.findById(_id);
+  //   if (!user) {
+  //     return res.status(404).json({ error: 'User not found' });
+  //   }
+
+  //   // Create the attendance record with the user ID
+  //   const attendance = new AttendenceModel({
+  //     user: _id,
+  //     date,
+  //     loginTime,
+  //     logoutTime,
+  //     breakInTime,
+  //     breakOutTime,
+  //     overtime
+  //   });
+
+  //   await attendance.save();
+  //   res.status(201).json(attendance);
+  // } catch (error) {
+  //   res.status(400).json({ error: error.message });
+  // }
+  const { employee_id, ...attendanceFields } = req.body;
+
   try {
-    const {
-      date,
-      loginTime,
-      logoutTime,
-      breakIn,
-      breakInTime,
-      breakOutTime,
-      overtime,
-    } = req.body;
-    const newRecord = new AttendenceModel({
-      date,
-      loginTime,
-      logoutTime,
-      breakIn,
-      breakInTime,
-      breakOutTime,
-      overtime,
+    // Create attendance record
+    const attendance = await AttendenceModel.create({
+      employee_id,
+      ...attendanceFields
     });
-    await newRecord.save();
-    res.status(201).json(newRecord);
+
+    res.status(200).json({ message: 'Attendance marked successfully' ,attendance});
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: 'An error occurred while marking attendance' });
   }
 };
 
-//Get all attendance records
+// Update an existing attendance record
+const updateAttendence = async (req, res) => {
+  try {
+    const attendance = await AttendenceModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    res.json(attendance);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Get all attendance records
 const getAllAttendanceRecords = async (req, res) => {
   try {
-    const records = await AttendenceModel.find();
-    res.json(records);
+    const attendances = await AttendenceModel.find();
+    res.json(attendances);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -50,67 +85,28 @@ const getAttendenceById = async (req, res) => {
   }
 };
 
-// Set break in status
-const setBreakIn = async (req, res) => {
+const EmployeeAttendence = async (req, res) => {
+// app.get('/user/:userId', async (req, res) => {
   try {
-    const record = await AttendenceModel.findById(req.params.id);
-    if (!record) {
-      return res.status(404).json({ error: "Attendance record not found" });
-    }
-    if (record.breakIn) {
-      return res.status(400).json({ error: "Break in already set" });
-    }
-    record.breakIn = true;
-    record.breakInTime = new Date();
-    await record.save();
-    res.json(record);
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+    const userId = req.params._id;
 
-// Set break out status
-const setBreakOut = async (req, res) => {
-  try {
-    const record = await AttendenceModel.findById(req.params.id);
-    if (!record) {
-      return res.status(404).json({ error: "Attendance record not found" });
-    }
-    if (!record.breakIn) {
-      return res.status(400).json({ error: "Break check" });
-    }
-    record.breakIn = false;
-    record.breakOutTime = new Date();
-    await record.save();
-    res.json(record);
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+    // Fetch the user document
+    const user = await UserModel.findById(userId);
 
-// Overtime
-const overtime = async (req, res) => {
-  try {
-    const record = await AttendenceModel.findById(req.params.id);
-    if (!record) {
-      return res.status(404).json({ error: "Overtime record not found" });
-    }
-    if (record.overtime) {
-      return res.status(400).json({ error: "Overtime already set" });
-    }
-    record.overtime = true;
-    await record.save();
-    res.json(record);
+    // Fetch the attendance documents for the user
+    const attendances = await AttendenceModel.find({ user: userId });
+
+    res.json({ user, attendances });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 module.exports = {
   createAttendanceRecord,
   getAllAttendanceRecords,
+  updateAttendence,
   getAttendenceById,
-  setBreakIn,
-  setBreakOut,
-  overtime,
+  EmployeeAttendence
 };

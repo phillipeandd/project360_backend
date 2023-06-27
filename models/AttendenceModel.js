@@ -2,17 +2,21 @@ const mongoose = require("mongoose");
 
 const attendenceSchema = new mongoose.Schema(
   {
-    date: { type: Date, required: true },
-    loginTime: { type: Date, required: true },
-    logoutTime: { type: Date, required: true },
-    breakIn: { type: Boolean, default: false },
+    employee_id: {
+      type: String,
+      required: true,
+      ref: 'User'
+    },
+    date: { type: Date, default: Date },
+    loginTime: { type: Date },
+    logoutTime: { type: Date },
     breakInTime: { type: Date },
     breakOutTime: { type: Date },
-    overtime: { type: Date, default: false },
+    overtime: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
 
 const AttendenceModel = mongoose.model("Attendence", attendenceSchema);
 
-module.exports = AttendenceModel;
+module.exports = {AttendenceModel, attendenceSchema};

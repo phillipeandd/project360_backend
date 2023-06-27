@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const AttendenceModel = require("../models/AttendenceModel");
 const userSchema = new mongoose.Schema({
     first_name: { type: String, required: true },
     last_name: { type: String, required: true },
@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
     upi_id: { type: String, required: true },
     registered_phone: { type: String, required: true }, 
     aadhar: { type: String, required: true }, 
-
+    attendances: [AttendenceModel.attendenceSchema]
 },{timestamps:true});
 
 const UserModel = mongoose.model("User", userSchema)
