@@ -34,18 +34,19 @@ const createAttendanceRecord = async (req, res) => {
   // } catch (error) {
   //   res.status(400).json({ error: error.message });
   // }
-  const { employee_id, ...attendanceFields } = req.body;
+
+  const { employee_id, ...attendanceFields } = req.body; 
 
   try {
     // Create attendance record
     const attendance = await AttendenceModel.create({
       employee_id,
-      ...attendanceFields
+      ...attendanceFields,
     });
 
-    res.status(200).json({ message: 'Attendance marked successfully' ,attendance});
+    res.status(200).json({ message: "Attendance marked successfully", attendance });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred while marking attendance' });
+    res.status(500).json({ error: "An error occurred while marking attendance" });
   }
 };
 

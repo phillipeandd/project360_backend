@@ -2,11 +2,7 @@ const mongoose = require("mongoose");
 
 const attendenceSchema = new mongoose.Schema(
   {
-    employee_id: {
-      type: String,
-      required: true,
-      ref: 'User'
-    },
+    employee_id: { type: String, ref: "User" },
     date: { type: Date, default: Date },
     loginTime: { type: Date },
     logoutTime: { type: Date },
@@ -19,4 +15,4 @@ const attendenceSchema = new mongoose.Schema(
 
 const AttendenceModel = mongoose.model("Attendence", attendenceSchema);
 
-module.exports = {AttendenceModel, attendenceSchema};
+module.exports = { AttendenceModel, attendenceSchema };
