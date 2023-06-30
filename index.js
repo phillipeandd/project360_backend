@@ -6,6 +6,7 @@ const connection = require("./config/db");
 const UserRoutes = require("./routes/UserRoutes");
 const TaskRoutes = require("./routes/TaskRoutes");
 const AttendenceRoutes = require("./routes/AttendenceRoutes");
+const LeaveRoutes = require("./routes/LeaveRoutes");
 const app = express();
 app.use(cors());
 PORT = process.env.PORT || 8000;
@@ -25,6 +26,7 @@ app.use("/", UserRoutes);
 app.use("/", TaskRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/", AttendenceRoutes);
+app.use("/",LeaveRoutes);
 
 // Listening
 app.listen(PORT, async () => {
