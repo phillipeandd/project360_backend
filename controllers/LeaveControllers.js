@@ -5,8 +5,9 @@ const leaveletter = async (req, res) => {
   try {
     const {
       employee_id,
+      type,
       to,
-      date,
+      currentDate,
       start_date,
       end_date,
       message,
@@ -14,8 +15,9 @@ const leaveletter = async (req, res) => {
     } = req.body;
     const newData = new LeaveModel({
       employee_id,
+      type,
       to,
-      date,
+      currentDate,
       start_date,
       end_date,
       message,
