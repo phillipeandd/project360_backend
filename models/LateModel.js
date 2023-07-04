@@ -6,7 +6,7 @@ const LateSchema = new mongoose.Schema({
   to: [String],
   currentDate: { type: Date },
   start_date: { type: Date },
-  at: { type: Date },
+  at: { type: String },
   message: { type: String },
   late_status: { type: String, default: "Pending" },
 });

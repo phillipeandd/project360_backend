@@ -8,6 +8,7 @@ const TaskRoutes = require("./routes/TaskRoutes");
 const AttendenceRoutes = require("./routes/AttendenceRoutes");
 const LeaveRoutes = require("./routes/LeaveRoutes");
 const LateRoutes = require("./routes/LateRoutes");
+const EarlyLogoutRoutes = require("./routes/EarlyLogoutRoutes");
 const app = express();
 app.use(cors());
 PORT = process.env.PORT || 8000;
@@ -29,6 +30,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/", AttendenceRoutes);
 app.use("/", LeaveRoutes);
 app.use("/", LateRoutes);
+app.use("/", EarlyLogoutRoutes);
 
 // Listening
 app.listen(PORT, async () => {
