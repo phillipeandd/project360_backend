@@ -23,6 +23,7 @@ const createAttendanceRecord = async (req, res) => {
     breakInTime,
     breakOutTime,
     overtime,
+    status
   } = req.body;
   const today = new Date().toISOString().split("T")[0]; // Get today's date
   try {
@@ -47,6 +48,7 @@ const createAttendanceRecord = async (req, res) => {
       breakInTime,
       breakOutTime,
       overtime,
+      status
     });
     await attendance.save();
     res
