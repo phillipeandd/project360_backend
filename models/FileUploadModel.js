@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
-
+const path = require('path');
 const fileUploadSchema = new mongoose.Schema(
   {
-    filename: String,
+    name: String,
     path: String,
   },
   { timestamps: true }

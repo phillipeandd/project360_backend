@@ -5,10 +5,10 @@ const FileUploadController = require("../controllers/FileUploadControllers");
 const multer = require("multer");
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "fileuploads/");
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
   },
-  filename: function (req, file, cb) {
+  filename: (req, file, cb) => {
     cb(null, file.originalname);
   },
 });
@@ -20,5 +20,6 @@ router.post(
   upload.single("file"),
   FileUploadController.fileUpload
 );
+router.get("/download/:fileName", FileUploadController.fileDownload);
 
 module.exports = router;
