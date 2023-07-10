@@ -19,8 +19,10 @@ const createAttendanceRecord = async (req, res) => {
   const {
     employee_id,
     loginTime,
+    loggedIn,
     logoutTime,
     breakInTime,
+    breakIn,
     breakOutTime,
     overtime,
     status
@@ -44,8 +46,10 @@ const createAttendanceRecord = async (req, res) => {
       employee_id,
       date: today,
       loginTime,
+      loggedIn,
       logoutTime,
       breakInTime,
+      breakIn,
       breakOutTime,
       overtime,
       status
