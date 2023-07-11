@@ -1,20 +1,6 @@
 const { AttendenceModel } = require("../models/AttendenceModel");
 const UserModel = require("../models/UserModel");
-// Create a new attendance record
-// const createAttendanceRecord = async (req, res) => {
-//   const { employee_id, ...attendanceFields } = req.body;
-//   try {
-//     const attendance = await AttendenceModel.create({
-//       employee_id,
-//       ...attendanceFields,
-//     });
-//     res.status(404).send(attendance);
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ error: "An error occurred while marking attendance" });
-//   }
-// };
+
 const createAttendanceRecord = async (req, res) => {
   const {
     employee_id,
@@ -27,7 +13,7 @@ const createAttendanceRecord = async (req, res) => {
     overtime,
     status
   } = req.body;
-  const today = new Date().toISOString().split("T")[0]; // Get today's date
+  const today = new Date().toISOString().split("T")[0]; 
   try {
     // Check if attendance already exists for today
     const existingAttendance = await AttendenceModel.findOne({
