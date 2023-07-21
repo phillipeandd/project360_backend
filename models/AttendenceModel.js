@@ -10,7 +10,7 @@ const attendenceSchema = new mongoose.Schema(
     breakInTime: { type: Date },
     breakIn :{type:Boolean, default:false},
     breakOutTime: { type: Date },
-    overtime: { type: Boolean, default: true },
+    overtime: { type: Boolean, default: false },
     status: { type: String, default: "Unavailable" },
   },
   { timestamps: true }
