@@ -4,6 +4,7 @@ const UserModel = require("../models/UserModel");
 const createAttendanceRecord = async (req, res) => {
   const {
     employee_id,
+    date,
     loginTime,
     loggedIn,
     logoutTime,
@@ -13,24 +14,24 @@ const createAttendanceRecord = async (req, res) => {
     overtime,
     status
   } = req.body;
-  const today = new Date().toISOString().split("T")[0]; 
+  // const today = new Date().toISOString().split("T")[0]; 
   try {
     // Check if attendance already exists for today
-    const existingAttendance = await AttendenceModel.findOne({
-      employee_id,
-      date: today,
-    });
+    // const existingAttendance = await AttendenceModel.findOne({
+    //   employee_id,
+    //   date: today,
+    // });
 
-    if (existingAttendance) {
-      return res
-        .status(400)
-        .json({ error: "Attendance already recorded for today" });
-    }
+    // if (existingAttendance) {
+    //   return res
+    //     .status(400)
+    //     .json({ error: "Attendance already recorded for today" });
+    // }
 
     // Create new attendance record
     const attendance = new AttendenceModel({
       employee_id,
-      date: today,
+      date,
       loginTime,
       loggedIn,
       logoutTime,
@@ -87,9 +88,64 @@ const getAttendenceById = async (req, res) => {
   }
 };
 
+const breakInFunction = async (req,res)=>{
+  const { attendanceId } = req.params;
+  const { newBreakInData } = req.body;
+
+  try {
+    // Check if the attendance record exists
+    const existingAttendance = await AttendenceModel.findById(attendanceId);
+    if (!existingAttendance) {
+      return res.status(404).json({ error: 'Attendance record not found.' });
+    }
+
+    // Update the breakInTime data in the database
+    existingAttendance.breakInTime.push(newBreakInData.breakInTime);
+    existingAttendance.breakIn = true;
+    existingAttendance.status = "Unavailable";
+    const updatedAttendance = await existingAttendance.save();
+
+    // Send the updated data as a response
+    res.json(updatedAttendance);
+  } catch (error) {
+    // Handle any errors
+    res.status(500).json({ error: 'Failed to update breakInTime.' });
+  }
+}
+
+const breakOutFunction = async (req,res)=>{
+  const { attendanceId } = req.params;
+  const { newBreakOutData } = req.body;
+
+  try {
+    // Check if the attendance record exists
+    const existingAttendance = await AttendenceModel.findById(attendanceId);
+    if (!existingAttendance) {
+      return res.status(404).json({ error: 'Attendance record not found.' });
+    }
+
+    // Update the breakInTime data in the database
+    existingAttendance.breakOutTime.push(newBreakOutData.breakOutTime);
+    existingAttendance.breakIn = false;
+    existingAttendance.status = "Available";
+    const updatedAttendance = await existingAttendance.save();
+
+    // Send the updated data as a response
+    res.json(updatedAttendance);
+  } catch (error) {
+    // Handle any errors
+    res.status(500).json({ error: 'Failed to update breakInTime.' });
+  }
+}
+
 module.exports = {
   createAttendanceRecord,
   getAllAttendanceRecords,
   updateAttendence,
   getAttendenceById,
+  breakInFunction,
+  breakOutFunction
 };
+
+
+// Updated Things On Backend For Attendence
