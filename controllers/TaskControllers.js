@@ -1,10 +1,8 @@
 const TaskModel = require("../models/TaskModel");
 
-
-
 //Post a task
 const assignTask = async (req, res) => {
-  try{
+  try {
     const {
       title,
       description,
@@ -24,15 +22,45 @@ const assignTask = async (req, res) => {
       start_date,
       end_date,
       file: `/uploads/${req.file.filename}`,
-      task_status
+      task_status,
     });
     await new_task.save();
     res.status(404).send({ Message: "Task Posted Successfully", new_task });
+  } catch (error) {
+    res.status(500).json({ error: "Error posting task." });
   }
-  catch (error) {
-    res.status(500).json({ error: 'Error posting task.' });
+};
+
+const assignTaskTest = async (req, res) => {
+  try {
+    const { file } = req;
+    const {
+      title,
+      description,
+      team,
+      employee,
+      priority,
+      start_date,
+      end_date,
+      task_status,
+    } = req.body;
+    const new_task = new TaskModel({
+      title,
+      description,
+      team,
+      employee,
+      priority,
+      start_date,
+      end_date,
+      name: file.originalname,
+      path: file.path,
+      task_status,
+    });
+    await new_task.save();
+    res.status(404).send({ Message: "Task Posted Successfully", new_task });
+  } catch (error) {
+    res.status(500).json({ error: "Error posting task." });
   }
-  
 };
 
 // See all task
@@ -76,4 +104,10 @@ const deleteTask = async (req, res) => {
   }
 };
 
-module.exports = { assignTask, seeAllTask, deleteTask, editTask };
+module.exports = {
+  assignTask,
+  assignTaskTest,
+  seeAllTask,
+  deleteTask,
+  editTask,
+};

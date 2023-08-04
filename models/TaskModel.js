@@ -4,7 +4,9 @@ const taskSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     description: { type: String, required: true },
-    file: { type: String, required: true },
+    // file: { type: String, required: true },
+    name: String,
+    path: String,
     team: { type: String, required: true },
     employee: { type: String, required: true },
     priority: { type: String, required: true },
