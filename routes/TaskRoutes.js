@@ -1,26 +1,51 @@
-const express = require("express")
-const router = express.Router()
-const TaskController = require("../controllers/TaskControllers")
+// const express = require("express")
+// const router = express.Router()
+// const TaskController = require("../controllers/TaskControllers")
+
+// const multer = require('multer');
+
+// // const upload = multer({ dest: 'uploads/' });
+
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//       cb(null, "uploads/");
+//     },
+//     filename: (req, file, cb) => {
+//       cb(null, file.originalname);
+//     },
+//   });
+  
+//   const upload = multer({ storage });
+
+// router.post("/admintask", upload.single('file'), TaskController.assignTask)
+// router.post("/admintasktest", upload.array("files", 5), TaskController.assignTaskTest)
+// router.get("/seeAllTask", TaskController.seeAllTask)
+// router.delete("/deleteTask/:id", TaskController.deleteTask)
+// router.patch("/editTask/:id", TaskController.editTask)
+
+// module.exports = router
+
+const express = require("express");
+const router = express.Router();
+const TaskController = require("../controllers/TaskControllers");
 
 const multer = require('multer');
 
-// const upload = multer({ dest: 'uploads/' });
-
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, "uploads/");
-    },
-    filename: (req, file, cb) => {
-      cb(null, file.originalname);
-    },
-  });
-  
-  const upload = multer({ storage });
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
 
-router.post("/admintask", upload.single('file'), TaskController.assignTask)
-router.post("/admintasktest", upload.array("files", 5), TaskController.assignTaskTest)
-router.get("/seeAllTask", TaskController.seeAllTask)
-router.delete("/deleteTask/:id", TaskController.deleteTask)
-router.patch("/editTask/:id", TaskController.editTask)
+const upload = multer({ storage });
 
-module.exports = router
+router.post("/admintask", upload.single('file'), TaskController.assignTask);
+router.post("/admintasktest", upload.array("files", 5), TaskController.assignTaskTest); // Use upload.array() for multiple files
+router.get("/seeAllTask", TaskController.seeAllTask);
+router.delete("/deleteTask/:id", TaskController.deleteTask);
+router.patch("/editTask/:id", TaskController.editTask);
+
+module.exports = router;

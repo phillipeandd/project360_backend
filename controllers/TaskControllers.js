@@ -31,9 +31,41 @@ const assignTask = async (req, res) => {
   }
 };
 
+// const assignTaskTest = async (req, res) => {
+//   try {
+//     const { file } = req;
+//     const {
+//       title,
+//       description,
+//       team,
+//       employee,
+//       priority,
+//       start_date,
+//       end_date,
+//       task_status,
+//     } = req.body;
+//     const new_task = new TaskModel({
+//       title,
+//       description,
+//       team,
+//       employee,
+//       priority,
+//       start_date,
+//       end_date,
+//       name: file.originalname,
+//       path: file.path,
+//       task_status,
+//     });
+//     await new_task.save();
+//     res.status(404).send({ Message: "Task Posted Successfully", new_task });
+//   } catch (error) {
+//     res.status(500).json({ error: "Error posting task." });
+//   }
+// };
+
 const assignTaskTest = async (req, res) => {
   try {
-    const { file } = req;
+    const { files } = req; // Use req.files instead of req.file for multiple files
     const {
       title,
       description,
@@ -44,6 +76,12 @@ const assignTaskTest = async (req, res) => {
       end_date,
       task_status,
     } = req.body;
+
+    const fileArray = files.map(file => ({
+      name: file.originalname,
+      path: file.path,
+    }));
+
     const new_task = new TaskModel({
       title,
       description,
@@ -52,16 +90,17 @@ const assignTaskTest = async (req, res) => {
       priority,
       start_date,
       end_date,
-      name: file.originalname,
-      path: file.path,
+      files: fileArray, // Use the array of file objects
       task_status,
     });
+
     await new_task.save();
-    res.status(404).send({ Message: "Task Posted Successfully", new_task });
+    res.status(201).json({ message: "Task Posted Successfully", new_task });
   } catch (error) {
     res.status(500).json({ error: "Error posting task." });
   }
 };
+
 
 // See all task
 const seeAllTask = async (req, res) => {
