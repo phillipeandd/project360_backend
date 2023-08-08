@@ -43,8 +43,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post("/admintask", upload.single('file'), TaskController.assignTask);
-router.post("/admintasktest", upload.array("files", 5), TaskController.assignTaskTest); // Use upload.array() for multiple files
-router.get("/seeAllTask", TaskController.seeAllTask);
+router.post("/admintasktest", upload.array("files", 4), TaskController.assignTaskTest); 
 router.delete("/deleteTask/:id", TaskController.deleteTask);
 router.patch("/editTask/:id", TaskController.editTask);
 
