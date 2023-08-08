@@ -29,9 +29,10 @@ app.get("/", async (req, res) => {
 });
 
 // Routes
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/", UserRoutes);
 app.use("/", TaskRoutes);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use("/", AttendenceRoutes);
 app.use("/", LeaveRoutes);
 app.use("/", LateRoutes);
