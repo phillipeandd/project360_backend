@@ -1,9 +1,10 @@
 const UserModel = require("../models/UserModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
+const path = require("path");
 // Post a User
 const newUserRegister = async (req, res) => {
+  const { file } = req;
   const {
     first_name,
     last_name,
@@ -88,6 +89,8 @@ const newUserRegister = async (req, res) => {
         upi_id,
         registered_phone,
         aadhar,
+        name: file.originalname,
+        path: file.path,
       });
 
       await new_user.save();
@@ -112,7 +115,8 @@ const login = async (req, res) => {
       }
       if (result) {
         const token = jwt.sign({ user_id }, process.env.SECRET);
-        const image = user.image;
+        const name = user.name;
+        const path = user.path;
         const first_name = user.first_name;
         const last_name = user.last_name;
         const father_name = user.father_name;
@@ -145,7 +149,8 @@ const login = async (req, res) => {
         const role = user.role;
         const id = user._id;
         const document = {
-          image: image,
+          name: name,
+          path: path,
           first_name: first_name,
           last_name: last_name,
           father_name: father_name,
@@ -215,17 +220,44 @@ const getSingleUser = async (req, res) => {
 };
 
 // Edit User
+// const editUser = async (req, res) => {
+//   try {
+//     const users = await UserModel.findByIdAndUpdate(req.params.id, req.body, {
+//       new: true,
+//     });
+//     if (!users) {
+//       return res.status(404).send();
+//     }
+//     res.send({ Message: "User updated successfully", users });
+//   } catch (error) {
+//     res.status(400).send(error);
+//   }
+// };
+
+// Controller
 const editUser = async (req, res) => {
+  const { file } = req;
   try {
-    const users = await UserModel.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    if (!users) {
-      return res.status(404).send();
+    const updateObject = { ...req.body };
+    if (file) {
+      updateObject.path = file.path;
     }
-    res.send({ Message: "User updated successfully", users });
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      req.params.id,
+      updateObject,
+      {
+        new: true,
+      }
+    );
+    if (!updatedUser) {
+      return res.status(404).send({ error: "User not found" });
+    }
+    res.send({ Message: "User updated successfully", user: updatedUser });
   } catch (error) {
-    res.status(400).send(error);
+    console.error("Error updating user:", error);
+    res
+      .status(500)
+      .send({ error: "An error occurred while updating the user." });
   }
 };
 

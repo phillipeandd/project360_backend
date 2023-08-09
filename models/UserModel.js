@@ -35,8 +35,8 @@ const userSchema = new mongoose.Schema(
     upi_id: { type: String, required: true },
     registered_phone: { type: String, required: true },
     aadhar: { type: String, required: true },
-    // attendances: [AttendenceModel.attendenceSchema],
-    // leaves:[LeaveModel.LeaveSchema]
+    name: String,
+    path: String,
   },
   { timestamps: true }
 );
