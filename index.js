@@ -14,11 +14,40 @@ const OfferLetterRoutes = require("./routes/OfferLetterRoutes");
 const MessageRoutes = require("./routes/MessageRoutes");
 
 const app = express();
-app.use(cors());
+// app.use(cors());
 PORT = process.env.PORT || 8000;
 const http = require("http");
 const socketIO = require("socket.io");
 const path = require("path");
+
+// Example of dynamic cors configuration based on environment
+// const corsOptions = {
+//   origin: function (origin, callback) {
+//     // Check if the origin is allowed
+//     const allowedOrigins = [
+//       "http://localhost:3000",
+//       "https://project360-backend.onrender.com",
+//       "https://360.exploreanddo.com/"
+//     ];
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error("Not allowed by CORS"));
+//     }
+//   },
+//   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//   credentials: true,
+// };
+// app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
 
 // Middlewares
 app.use(bodyParser.json());
@@ -32,7 +61,6 @@ app.get("/", async (req, res) => {
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/", UserRoutes);
 app.use("/", TaskRoutes);
-
 app.use("/", AttendenceRoutes);
 app.use("/", LeaveRoutes);
 app.use("/", LateRoutes);

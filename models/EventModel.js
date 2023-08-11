@@ -1,16 +1,18 @@
 const mongoose = require("mongoose");
-
+const fileSchema = new mongoose.Schema({
+  name: String,
+  path: String,
+});
 const eventSchema = new mongoose.Schema(
   {
-    name: String,
-    path: String,
-    eventtitle: { type: String, required: true },
-    eventdescription: { type: String, required: true },
+    files: [fileSchema], 
+    title: { type: String, required: true },
+    description: { type: String, required: true },
     department: [String],
     employee: [String],
-    start_date: { type: Date, required: true },
-    end_date: { type: Date, required: true },
-    selectedDate: { type: Date, required: true }
+    start: { type: Date, required: true },
+    end: { type: Date, required: true },
+    
   },
   { timestamps: true }
 );
