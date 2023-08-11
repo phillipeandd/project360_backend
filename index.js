@@ -14,7 +14,7 @@ const OfferLetterRoutes = require("./routes/OfferLetterRoutes");
 const MessageRoutes = require("./routes/MessageRoutes");
 
 const app = express();
-// app.use(cors());
+app.use(cors());
 PORT = process.env.PORT || 8000;
 const http = require("http");
 const socketIO = require("socket.io");
@@ -40,14 +40,14 @@ const path = require("path");
 // };
 // app.use(cors(corsOptions));
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
+// app.use((req, res, next) => {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept"
+//   );
+//   next();
+// });
 
 // Middlewares
 app.use(bodyParser.json());
