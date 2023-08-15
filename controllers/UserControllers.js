@@ -79,7 +79,7 @@ const newUserRegister = async (req, res) => {
         marital_status,
         doj,
         password: hash,
-        confirm_password,
+        confirm_password: hash,
         role,
         account_holder_name,
         bank_name,
@@ -193,6 +193,12 @@ const login = async (req, res) => {
     res.send({ Message: "Enter Your Credentials" });
   }
 };
+
+
+
+
+
+
 
 // Get a user
 const getUser = async (req, res) => {

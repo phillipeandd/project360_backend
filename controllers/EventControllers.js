@@ -1,10 +1,11 @@
 const EventModel = require("../models/EventModel");
 
 const postEvent = async (req, res) => {
+  try {
   const { files } = req;
   const { title, description, department, employee, start, end } = req.body;
 
-  const fileArray = files.map(file => ({
+  const fileArray = files.map((file) => ({
     name: file.originalname,
     path: file.path,
   }));
@@ -16,10 +17,10 @@ const postEvent = async (req, res) => {
     employee,
     start,
     end,
-    files: fileArray, 
+    files: fileArray,
   });
 
-  try {
+  
     await new_event.save();
     res.status(200).send({ message: "Event posted successfully", new_event });
   } catch (err) {

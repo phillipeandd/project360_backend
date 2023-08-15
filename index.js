@@ -12,42 +12,18 @@ const EarlyLogoutRoutes = require("./routes/EarlyLogoutRoutes");
 const ProbationLetterRoutes = require("./routes/ProbationLetterRoutes");
 const OfferLetterRoutes = require("./routes/OfferLetterRoutes");
 const MessageRoutes = require("./routes/MessageRoutes");
+const EventRoutes = require("./routes/EventRoutes");
 
 const app = express();
 app.use(cors());
 PORT = process.env.PORT || 8000;
 const http = require("http");
 const socketIO = require("socket.io");
+const httpServer = http.createServer(app);
+const io = socketIO(httpServer);
+
 const path = require("path");
 
-// Example of dynamic cors configuration based on environment
-// const corsOptions = {
-//   origin: function (origin, callback) {
-//     // Check if the origin is allowed
-//     const allowedOrigins = [
-//       "http://localhost:3000",
-//       "https://project360-backend.onrender.com",
-//       "https://360.exploreanddo.com/"
-//     ];
-//     if (!origin || allowedOrigins.includes(origin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error("Not allowed by CORS"));
-//     }
-//   },
-//   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-//   credentials: true,
-// };
-// app.use(cors(corsOptions));
-
-// app.use((req, res, next) => {
-//   res.header("Access-Control-Allow-Origin", "*");
-//   res.header(
-//     "Access-Control-Allow-Headers",
-//     "Origin, X-Requested-With, Content-Type, Accept"
-//   );
-//   next();
-// });
 
 // Middlewares
 app.use(bodyParser.json());
@@ -68,9 +44,20 @@ app.use("/", EarlyLogoutRoutes);
 app.use("/", ProbationLetterRoutes);
 app.use("/", OfferLetterRoutes);
 app.use("/", MessageRoutes);
+app.use("/", EventRoutes);
 
 // // Listening
-app.listen(PORT, async () => {
+// app.listen(PORT, async () => {
+//   try {
+//     await connection;
+//     console.log("MongoDB Connected Successfully");
+//   } catch (err) {
+//     console.log(err);
+//   }
+//   console.log(`Listening on PORT ${PORT}`);
+// });
+
+httpServer.listen(PORT, async () => {
   try {
     await connection;
     console.log("MongoDB Connected Successfully");
@@ -79,6 +66,21 @@ app.listen(PORT, async () => {
   }
   console.log(`Listening on PORT ${PORT}`);
 });
+
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  // Handle custom events here
+  socket.on("customEvent", (data) => {
+    console.log("Received custom event:", data);
+  });
+
+  // Handle disconnections
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
+});
+
 
 // const server = http.createServer(app);
 
