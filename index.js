@@ -13,7 +13,7 @@ const ProbationLetterRoutes = require("./routes/ProbationLetterRoutes");
 const OfferLetterRoutes = require("./routes/OfferLetterRoutes");
 const MessageRoutes = require("./routes/MessageRoutes");
 const EventRoutes = require("./routes/EventRoutes");
-
+const DocumentRoutes = require("./routes/DocumentRoutes");
 const app = express();
 app.use(cors());
 PORT = process.env.PORT || 8000;
@@ -45,6 +45,7 @@ app.use("/", ProbationLetterRoutes);
 app.use("/", OfferLetterRoutes);
 app.use("/", MessageRoutes);
 app.use("/", EventRoutes);
+app.use("/", DocumentRoutes);
 
 // // Listening
 // app.listen(PORT, async () => {

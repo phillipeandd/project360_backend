@@ -34,8 +34,10 @@ const taskSchema = new mongoose.Schema(
     title: { type: String, required: true },
     description: { type: String, required: true },
     files: [fileSchema], // Array of file objects
-    team: { type: String, required: true },
-    employee: { type: String, required: true },
+    // team: { type: String, required: true },
+    // employee: { type: String, required: true },
+    department: [String],
+    employee: [String],
     priority: { type: String, required: true },
     start_date: { type: Date, required: true },
     end_date: { type: Date, required: true },

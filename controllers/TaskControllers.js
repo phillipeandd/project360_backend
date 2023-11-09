@@ -63,9 +63,48 @@ const assignTask = async (req, res) => {
 //   }
 // };
 
+const postMultipleEmployeeTask = async (req, res) => {
+  try {
+    const { files } = req;
+    const {
+      title,
+      description,
+      department,
+      employee,
+      priority,
+      start_date,
+      end_date,
+      task_status,
+    } = req.body;
+
+    const fileArray = files.map((file) => ({
+      name: file.originalname,
+      path: file.path,
+    }));
+
+    const new_task = new TaskModel({
+      title,
+      description,
+      department,
+      employee,
+      priority,
+      start_date,
+      end_date,
+      task_status,
+      files: fileArray,
+    });
+
+    await new_task.save();
+    res.status(200).send({ message: "Task posted successfully", new_task });
+  } catch (err) {
+    console.error("Error posting task", err);
+    res.status(500).send("Error posting task");
+  }
+};
+
 const assignTaskTest = async (req, res) => {
   try {
-    const { files } = req; 
+    const { files } = req;
     const {
       title,
       description,
@@ -77,7 +116,7 @@ const assignTaskTest = async (req, res) => {
       task_status,
     } = req.body;
 
-    const fileArray = files.map(file => ({
+    const fileArray = files.map((file) => ({
       name: file.originalname,
       path: file.path,
     }));
@@ -100,7 +139,6 @@ const assignTaskTest = async (req, res) => {
     res.status(500).json({ error: "Error posting task." });
   }
 };
-
 
 // See all task
 const seeAllTask = async (req, res) => {
@@ -149,4 +187,5 @@ module.exports = {
   seeAllTask,
   deleteTask,
   editTask,
+  postMultipleEmployeeTask
 };
