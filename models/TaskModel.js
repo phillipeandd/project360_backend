@@ -42,6 +42,7 @@ const taskSchema = new mongoose.Schema(
     start_date: { type: Date, required: true },
     end_date: { type: Date, required: true },
     task_status: { type: String, default: "Pending" },
+    task_approval: { type: String, default: "On Hold" },
   },
   { timestamps: true }
 );

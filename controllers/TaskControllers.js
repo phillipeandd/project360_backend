@@ -75,6 +75,7 @@ const postMultipleEmployeeTask = async (req, res) => {
       start_date,
       end_date,
       task_status,
+      task_approval
     } = req.body;
 
     const fileArray = files.map((file) => ({
@@ -91,6 +92,7 @@ const postMultipleEmployeeTask = async (req, res) => {
       start_date,
       end_date,
       task_status,
+      task_approval,
       files: fileArray,
     });
 
