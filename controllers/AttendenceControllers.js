@@ -88,6 +88,21 @@ const getAttendenceById = async (req, res) => {
   }
 };
 
+
+
+const getUserAttendenceById = async (req, res) => {
+  const { employee_id } = req.params;
+  try {
+    const employeeRecords = await AttendenceModel.find({ employee_id: employee_id });
+
+    res.status(200).json({ Message: "Attendence By Id", employeeRecords });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+
+
 const breakInFunction = async (req,res)=>{
   const { attendanceId } = req.params;
   const { newBreakInData } = req.body;
@@ -144,7 +159,8 @@ module.exports = {
   updateAttendence,
   getAttendenceById,
   breakInFunction,
-  breakOutFunction
+  breakOutFunction,
+  getUserAttendenceById
 };
 
 

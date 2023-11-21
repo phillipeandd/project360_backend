@@ -8,5 +8,6 @@ router.post("/updateBreakIns/:attendanceId", AttendenceController.breakInFunctio
 router.post("/updateBreakOuts/:attendanceId", AttendenceController.breakOutFunction);
 router.patch("/attendence/:id", AttendenceController.updateAttendence);
 router.get("/attendence/:id", AttendenceController.getAttendenceById);
+router.get("/allattendence/:employee_id", AttendenceController.getUserAttendenceById);
 
 module.exports = router;
