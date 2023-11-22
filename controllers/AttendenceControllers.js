@@ -43,7 +43,7 @@ const createAttendanceRecord = async (req, res) => {
     });
     await attendance.save();
     res
-      .status(404)
+      .status(200)
       .send({ Message: "Attendence Marked Successfully", attendance });
   } catch (error) {
     res
@@ -82,7 +82,7 @@ const getAttendenceById = async (req, res) => {
   try {
     const attendenceById = await AttendenceModel.findOne({ _id: id });
 
-    res.status(404).send({ Message: "Attendence By Id", attendenceById });
+    res.status(200).send({ Message: "Attendence By Id", attendenceById });
   } catch (error) {
     res.status(500).send(error);
   }
