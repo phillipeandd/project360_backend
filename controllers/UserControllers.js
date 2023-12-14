@@ -184,21 +184,19 @@ const login = async (req, res) => {
           aadhar: aadhar,
           token: token,
         };
-        res.send({ Message: "Login Successfull", document: document });
+        res.send({
+          Message: "Login Successfull",
+          document: document,
+          token: token,
+        });
       } else {
-        res.send({ Message: "Login Failed" });
+        res.send({ Message: "Invalid Credentials" });
       }
     });
   } else {
-    res.send({ Message: "Enter Your Credentials" });
+    res.send({ Message: "Invalid Credentials" });
   }
 };
-
-
-
-
-
-
 
 // Get a user
 const getUser = async (req, res) => {
