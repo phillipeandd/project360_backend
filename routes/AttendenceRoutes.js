@@ -9,5 +9,6 @@ router.post("/updateBreakOuts/:attendanceId", AttendenceController.breakOutFunct
 router.patch("/attendence/:id", AttendenceController.updateAttendence);
 router.get("/attendence/:id", AttendenceController.getAttendenceById);
 router.get("/allattendence/:employee_id", AttendenceController.getUserAttendenceById);
+router.get("/filterattendence/:employee_id", AttendenceController.getUserAttendenceByIdFilter);
 
 module.exports = router;

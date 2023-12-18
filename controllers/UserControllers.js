@@ -190,11 +190,11 @@ const login = async (req, res) => {
           token: token,
         });
       } else {
-        res.send({ Message: "Invalid Credentials" });
+        res.send({ Message: "Invalid Credentials", token: null });
       }
     });
   } else {
-    res.send({ Message: "Invalid Credentials" });
+    res.send({ Message: "Invalid Credentials", token: null });
   }
 };
 

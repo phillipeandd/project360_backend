@@ -12,9 +12,9 @@ const createAttendanceRecord = async (req, res) => {
     breakIn,
     breakOutTime,
     overtime,
-    status
+    status,
   } = req.body;
-  // const today = new Date().toISOString().split("T")[0]; 
+  // const today = new Date().toISOString().split("T")[0];
   try {
     // Check if attendance already exists for today
     // const existingAttendance = await AttendenceModel.findOne({
@@ -39,7 +39,7 @@ const createAttendanceRecord = async (req, res) => {
       breakIn,
       breakOutTime,
       overtime,
-      status
+      status,
     });
     await attendance.save();
     res
@@ -88,12 +88,12 @@ const getAttendenceById = async (req, res) => {
   }
 };
 
-
-
 const getUserAttendenceById = async (req, res) => {
   const { employee_id } = req.params;
   try {
-    const employeeRecords = await AttendenceModel.find({ employee_id: employee_id });
+    const employeeRecords = await AttendenceModel.find({
+      employee_id: employee_id,
+    });
 
     res.status(200).json({ Message: "Attendence By Id", employeeRecords });
   } catch (error) {
@@ -101,9 +101,27 @@ const getUserAttendenceById = async (req, res) => {
   }
 };
 
+const getUserAttendenceByIdFilter = async (req, res) => {
+  const { employee_id } = req.params;
+  const { start, end } = req.query;
 
+  try {
+    let query = { employee_id };
 
-const breakInFunction = async (req,res)=>{
+    // If start and end parameters are provided, add date filtering to the query
+    if (start && end) {
+      query.date = { $gte: start, $lt: end };
+    }
+
+    const employeeRecords = await AttendenceModel.find(query);
+
+    res.status(200).json({ Message: "Attendance By Id", employeeRecords });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+const breakInFunction = async (req, res) => {
   const { attendanceId } = req.params;
   const { newBreakInData } = req.body;
 
@@ -111,7 +129,7 @@ const breakInFunction = async (req,res)=>{
     // Check if the attendance record exists
     const existingAttendance = await AttendenceModel.findById(attendanceId);
     if (!existingAttendance) {
-      return res.status(404).json({ error: 'Attendance record not found.' });
+      return res.status(404).json({ error: "Attendance record not found." });
     }
 
     // Update the breakInTime data in the database
@@ -124,11 +142,11 @@ const breakInFunction = async (req,res)=>{
     res.json(updatedAttendance);
   } catch (error) {
     // Handle any errors
-    res.status(500).json({ error: 'Failed to update breakInTime.' });
+    res.status(500).json({ error: "Failed to update breakInTime." });
   }
-}
+};
 
-const breakOutFunction = async (req,res)=>{
+const breakOutFunction = async (req, res) => {
   const { attendanceId } = req.params;
   const { newBreakOutData } = req.body;
 
@@ -136,7 +154,7 @@ const breakOutFunction = async (req,res)=>{
     // Check if the attendance record exists
     const existingAttendance = await AttendenceModel.findById(attendanceId);
     if (!existingAttendance) {
-      return res.status(404).json({ error: 'Attendance record not found.' });
+      return res.status(404).json({ error: "Attendance record not found." });
     }
 
     // Update the breakInTime data in the database
@@ -149,9 +167,9 @@ const breakOutFunction = async (req,res)=>{
     res.json(updatedAttendance);
   } catch (error) {
     // Handle any errors
-    res.status(500).json({ error: 'Failed to update breakInTime.' });
+    res.status(500).json({ error: "Failed to update breakInTime." });
   }
-}
+};
 
 module.exports = {
   createAttendanceRecord,
@@ -160,8 +178,8 @@ module.exports = {
   getAttendenceById,
   breakInFunction,
   breakOutFunction,
-  getUserAttendenceById
+  getUserAttendenceById,
+  getUserAttendenceByIdFilter,
 };
-
 
 // Updated Things On Backend For Attendence
