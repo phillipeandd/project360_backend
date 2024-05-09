@@ -40,7 +40,7 @@ const taskSchema = new mongoose.Schema(
     employee: [String],
     priority: { type: String, required: true },
     start_date: { type: Date, required: true },
-    end_date: { type: Date, required: true },
+    end_date: { type: Date, default: Date.now  },
     task_status: { type: String, default: "Pending" },
     task_approval: { type: String, default: "On Hold" },
   },
