@@ -104,6 +104,16 @@ const login = async (req, res) => {
 
   const user = await UserModel.findOne({ employee_id });
 
+  if (!user) {
+    return res.status(401).send({ Message: "Invalid employee ID" });
+  }
+
+  const passwordMatch = await bcrypt.compare(password, user.password);
+
+  if (!passwordMatch) {
+    return res.status(401).send({ Message: "Invalid password" });
+  }
+
   if (user) {
     const hashed_password = user.password;
 
@@ -197,6 +207,10 @@ const login = async (req, res) => {
     res.send({ Message: "Invalid Credentials", token: null });
   }
 };
+
+
+
+
 
 // Get a user
 const getUser = async (req, res) => {

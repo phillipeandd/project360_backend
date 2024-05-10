@@ -74,6 +74,8 @@ const postMultipleEmployeeTask = async (req, res) => {
       priority,
       start_date,
       end_date,
+      hourly,
+      quarterly,
       task_status,
       task_approval
     } = req.body;
@@ -91,6 +93,8 @@ const postMultipleEmployeeTask = async (req, res) => {
       priority,
       start_date,
       end_date,
+      hourly,
+      quarterly,
       task_status,
       task_approval,
       files: fileArray,
