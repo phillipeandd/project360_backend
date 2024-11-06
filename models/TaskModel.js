@@ -43,6 +43,8 @@ const taskSchema = new mongoose.Schema(
     hourly: { type: String, default: "" },
     quarterly: { type: String , default: ""},
     end_date: { type: Date, default: ""  },
+    assigned_by: { type: String , default: ""},
+    cc: { type: String, default: ""  },
     task_status: { type: String, default: "Pending" },
     task_approval: { type: String, default: "On Hold" },
   },

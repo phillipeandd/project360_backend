@@ -31,37 +31,7 @@ const assignTask = async (req, res) => {
   }
 };
 
-// const assignTaskTest = async (req, res) => {
-//   try {
-//     const { file } = req;
-//     const {
-//       title,
-//       description,
-//       team,
-//       employee,
-//       priority,
-//       start_date,
-//       end_date,
-//       task_status,
-//     } = req.body;
-//     const new_task = new TaskModel({
-//       title,
-//       description,
-//       team,
-//       employee,
-//       priority,
-//       start_date,
-//       end_date,
-//       name: file.originalname,
-//       path: file.path,
-//       task_status,
-//     });
-//     await new_task.save();
-//     res.status(404).send({ Message: "Task Posted Successfully", new_task });
-//   } catch (error) {
-//     res.status(500).json({ error: "Error posting task." });
-//   }
-// };
+
 
 const postMultipleEmployeeTask = async (req, res) => {
   try {
@@ -76,6 +46,8 @@ const postMultipleEmployeeTask = async (req, res) => {
       end_date,
       hourly,
       quarterly,
+      assigned_by,
+      cc,
       task_status,
       task_approval
     } = req.body;
@@ -95,6 +67,8 @@ const postMultipleEmployeeTask = async (req, res) => {
       end_date,
       hourly,
       quarterly,
+      assigned_by,
+      cc,
       task_status,
       task_approval,
       files: fileArray,
