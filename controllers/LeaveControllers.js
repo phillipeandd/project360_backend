@@ -25,7 +25,7 @@ const leaveletter = async (req, res) => {
     });
     await newData.save();
     res
-      .status(404)
+      .status(201)
       .send({ Message: "Leave Letter Posted Successfully", newData });
   } catch (error) {
     console.error(error);
@@ -43,7 +43,7 @@ const leaveapproval = async (req, res) => {
       return res.status(404).send();
     }
     res
-      .status(404)
+      .status(201)
       .send({
         Message: "Leave Letter Approved Status Changed Successfully",
         leave,

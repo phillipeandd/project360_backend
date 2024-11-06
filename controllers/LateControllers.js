@@ -25,7 +25,7 @@ const lateletter = async (req, res) => {
     });
     await newData.save();
     res
-      .status(404)
+      .status(201)
       .send({ Message: "Late Letter Posted Successfully", newData });
   } catch (error) {
     console.error(error);
@@ -42,7 +42,7 @@ const lateapproval = async (req, res) => {
     if (!late) {
       return res.status(404).send();
     }
-    res.status(404).send({
+    res.status(201).send({
       Message: "Late Letter Approved Status Changed Successfully",
       late,
     });

@@ -25,7 +25,7 @@ const earlylogoutletter = async (req, res) => {
     });
     await newData.save();
     res
-      .status(404)
+      .status(201)
       .send({ Message: "Early Logout Posted Successfully", newData });
   } catch (error) {
     console.error(error);
@@ -42,7 +42,7 @@ const earlylogoutapproval = async (req, res) => {
     if (!earlylogout) {
       return res.status(404).send();
     }
-    res.status(404).send({
+    res.status(201).send({
       Message: "Early Logout Approved Status Changed Successfully",
       earlylogout,
     });
