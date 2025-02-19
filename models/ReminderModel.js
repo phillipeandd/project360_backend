@@ -28,7 +28,7 @@ const ReminderSchema = new mongoose.Schema(
       type: [String],
       required: true,
     },
-    lists: {
+    list: {
       type: String,
       required: true,
     },
