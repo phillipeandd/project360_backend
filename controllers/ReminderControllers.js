@@ -3,7 +3,7 @@ const { ReminderModel } = require("../models/ReminderModel"); // Assuming you ha
 // Create a new reminder
 const reminder = async (req, res) => {
   try {
-    const { title, notes, date, time, priority, department, lists } = req.body;
+    const { title, notes, date, time, priority, department, list } = req.body;
     const newReminder = new ReminderModel({
       title,
       notes,
@@ -11,7 +11,7 @@ const reminder = async (req, res) => {
       time,
       priority,
       department,
-      lists,
+      list,
     });
     await newReminder.save();
     res.status(201).json({
