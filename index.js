@@ -14,6 +14,9 @@ const OfferLetterRoutes = require("./routes/OfferLetterRoutes");
 const MessageRoutes = require("./routes/MessageRoutes");
 const EventRoutes = require("./routes/EventRoutes");
 const DocumentRoutes = require("./routes/DocumentRoutes");
+const ReminderRoutes = require("./routes/ReminderRoutes");
+const ListRoutes = require("./routes/ListRoutes");
+
 const app = express();
 app.use(cors());
 PORT = process.env.PORT || 8000;
@@ -47,6 +50,8 @@ app.use("/", OfferLetterRoutes);
 app.use("/", MessageRoutes);
 app.use("/", EventRoutes);
 app.use("/", DocumentRoutes);
+app.use("/", ReminderRoutes);
+app.use("/", ListRoutes);
 
 // // Listening
 // app.listen(PORT, async () => {
