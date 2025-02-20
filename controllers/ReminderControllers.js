@@ -51,10 +51,9 @@ const getSingleReminder = async (req, res) => {
 const updateReminder = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body; // Assuming status is a field in the reminder
     const updatedReminder = await ReminderModel.findByIdAndUpdate(
       id,
-      { status },
+      req.body,
       { new: true }
     );
 

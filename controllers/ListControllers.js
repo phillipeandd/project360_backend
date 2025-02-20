@@ -43,10 +43,9 @@ const getSingleList = async (req, res) => {
 const updateList = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body; // Assuming status is a field in the list
     const updatedList = await ListModel.findByIdAndUpdate(
       id,
-      { status },
+      req.body,
       { new: true }
     );
 
