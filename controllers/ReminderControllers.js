@@ -3,8 +3,9 @@ const { ReminderModel } = require("../models/ReminderModel"); // Assuming you ha
 // Create a new reminder
 const reminder = async (req, res) => {
   try {
-    const { title, notes, date, time, priority, department, list } = req.body;
+    const {employee_id, title, notes, date, time, priority, department, list } = req.body;
     const newReminder = new ReminderModel({
+      employee_id,
       title,
       notes,
       date,
@@ -47,6 +48,25 @@ const getSingleReminder = async (req, res) => {
   }
 };
 
+// Get reminder by Employee ID
+const getReminderByEmployeeId = async (req, res) => {
+  try {
+    const { employee_id } = req.params;
+    
+    // Find all reminder where employee_id matches
+    const reminder = await ReminderModel.find({ employee_id });
+
+    if (!reminder.length) {
+      return res.status(404).json({ message: "No reminder found for this employee" });
+    }
+
+    res.status(200).json(reminder);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 // Update a reminder (for example, approving leave)
 const updateReminder = async (req, res) => {
   try {
@@ -87,6 +107,7 @@ module.exports = {
   reminder,
   seeAllReminders,
   getSingleReminder,
+  getReminderByEmployeeId,
   updateReminder,
   deleteReminder,
 };

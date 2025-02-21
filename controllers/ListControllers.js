@@ -3,8 +3,8 @@ const { ListModel } = require("../models/ListModel"); // Assuming you have a Rem
 // Create a new list
 const addLists = async (req, res) => {
   try {
-    const { listName, listColor } = req.body;
-    const newList = new ListModel({ listName, listColor });
+    const { employee_id,listName, listColor } = req.body;
+    const newList = new ListModel({ employee_id, listName, listColor });
     await newList.save();
     res.status(201).json({
       message: "List created successfully",
@@ -34,6 +34,24 @@ const getSingleList = async (req, res) => {
       return res.status(404).json({ message: "List not found" });
     }
     res.status(200).json(list);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get list by Employee ID
+const getListsByEmployeeId = async (req, res) => {
+  try {
+    const { employee_id } = req.params;
+    
+    // Find all lists where employee_id matches
+    const lists = await ListModel.find({ employee_id });
+
+    if (!lists.length) {
+      return res.status(404).json({ message: "No lists found for this employee" });
+    }
+
+    res.status(200).json(lists);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -77,6 +95,7 @@ module.exports = {
   addLists,
   seeAllLists,
   getSingleList,
+  getListsByEmployeeId,
   updateList,
   deleteList,
 };
