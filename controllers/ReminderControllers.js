@@ -66,6 +66,28 @@ const getReminderByEmployeeId = async (req, res) => {
   }
 };
 
+const getRemindersByList = async (req, res) => {
+  try {
+    const { list,employee_id } = req.body; // Get the list from the request body
+
+    if (!list) {
+      return res.status(400).json({ message: "List & Employee Id is required" });
+    }
+
+    // Find all reminders where list name matches
+    const reminders = await ReminderModel.find({ list,employee_id });
+
+    if (!reminders.length) {
+      return res.status(404).json({ message: "No reminders found for this list" });
+    }
+
+    res.status(200).json(reminders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 
 // Update a reminder (for example, approving leave)
 const updateReminder = async (req, res) => {
@@ -108,6 +130,7 @@ module.exports = {
   seeAllReminders,
   getSingleReminder,
   getReminderByEmployeeId,
+  getRemindersByList,
   updateReminder,
   deleteReminder,
 };
