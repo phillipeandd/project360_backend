@@ -1,8 +1,107 @@
+// const express = require("express");
+// const cors = require("cors");
+// require("dotenv").config();
+// const bodyParser = require("body-parser");
+// const connection = require("./config/db");
+// const path = require("path");
+
+// // Import Routes
+// const UserRoutes = require("./routes/UserRoutes");
+// const TaskRoutes = require("./routes/TaskRoutes");
+// const AttendenceRoutes = require("./routes/AttendenceRoutes");
+// const LeaveRoutes = require("./routes/LeaveRoutes");
+// const LateRoutes = require("./routes/LateRoutes");
+// const EarlyLogoutRoutes = require("./routes/EarlyLogoutRoutes");
+// const ProbationLetterRoutes = require("./routes/ProbationLetterRoutes");
+// const OfferLetterRoutes = require("./routes/OfferLetterRoutes");
+// const MessageRoutes = require("./routes/MessageRoutes");
+// const ChatRoutes = require("./routes/ChatRoutes");
+// const EventRoutes = require("./routes/EventRoutes");
+// const DocumentRoutes = require("./routes/DocumentRoutes");
+// const ReminderRoutes = require("./routes/ReminderRoutes");
+// const ListRoutes = require("./routes/ListRoutes");
+
+// const app = express();
+// app.use(cors());
+// app.use(bodyParser.json());
+
+// const PORT = process.env.PORT || 8000;
+
+// // Create HTTP Server & Socket.IO
+// const http = require("http");
+// const socketIO = require("socket.io");
+// const httpServer = http.createServer(app);
+// const io = socketIO(httpServer, {
+//   cors: {
+//     origin: "*",
+//     methods: ["GET", "POST"],
+//   },
+// });
+
+// // Serve Static Files (Uploads)
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// // Default Route
+// app.get("/", (req, res) => {
+//   res.send("Connected to server");
+// });
+
+// // Routes
+// app.use("/", UserRoutes);
+// app.use("/", TaskRoutes);
+// app.use("/", AttendenceRoutes);
+// app.use("/", LeaveRoutes);
+// app.use("/", LateRoutes);
+// app.use("/", EarlyLogoutRoutes);
+// app.use("/", ProbationLetterRoutes);
+// app.use("/", OfferLetterRoutes);
+// app.use("/", MessageRoutes);
+// app.use("/", ChatRoutes);
+// app.use("/", EventRoutes);
+// app.use("/", DocumentRoutes);
+// app.use("/", ReminderRoutes);
+// app.use("/", ListRoutes);
+
+// // 🔹 *Socket.IO Configuration*
+// io.on("connection", (socket) => {
+//   console.log(`✅ User connected: ${socket.id}`);
+
+//   // Receive a message and broadcast it
+//   socket.on("newMessage", (message) => {
+//     console.log(`📩 Message Received:`, message);
+//     io.emit("newMessage", message); // Send to all clients
+//   });
+
+//   // Custom event (if needed)
+//   socket.on("customEvent", (data) => {
+//     console.log(`🛠 Custom Event:`, data);
+//   });
+
+//   // Handle Disconnection
+//   socket.on("disconnect", () => {
+//     console.log(`❌ User disconnected: ${socket.id}`);
+//   });
+// });
+
+// // 🔹 *Start Server*
+// httpServer.listen(PORT, async () => {
+//   try {
+//     await connection;
+//     console.log("🚀 MongoDB Connected Successfully");
+//   } catch (err) {
+//     console.error("❌ MongoDB Connection Error:", err);
+//   }
+//   console.log(`🎯 Server running on PORT ${PORT}`);
+// });
+
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const bodyParser = require("body-parser");
 const connection = require("./config/db");
+const path = require("path");
+
+// Import Routes
 const UserRoutes = require("./routes/UserRoutes");
 const TaskRoutes = require("./routes/TaskRoutes");
 const AttendenceRoutes = require("./routes/AttendenceRoutes");
@@ -12,6 +111,7 @@ const EarlyLogoutRoutes = require("./routes/EarlyLogoutRoutes");
 const ProbationLetterRoutes = require("./routes/ProbationLetterRoutes");
 const OfferLetterRoutes = require("./routes/OfferLetterRoutes");
 const MessageRoutes = require("./routes/MessageRoutes");
+const ChatRoutes = require("./routes/ChatRoutes");
 const EventRoutes = require("./routes/EventRoutes");
 const DocumentRoutes = require("./routes/DocumentRoutes");
 const ReminderRoutes = require("./routes/ReminderRoutes");
@@ -19,26 +119,36 @@ const ListRoutes = require("./routes/ListRoutes");
 
 const app = express();
 app.use(cors());
-PORT = process.env.PORT || 8000;
-//PORT = 7200;
+app.use(bodyParser.json());
+
+const PORT = process.env.PORT || 8000;
+
+// Create HTTP Server & Socket.IO
 const http = require("http");
 const socketIO = require("socket.io");
 const httpServer = http.createServer(app);
-const io = socketIO(httpServer);
+const io = socketIO(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
 
-const path = require("path");
+// Middleware to attach `io` to requests for WebSocket-enabled routes
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
+// Serve Static Files (Uploads)
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Middlewares
-app.use(bodyParser.json());
-
-// Get Request
-app.get("/", async (req, res) => {
+// Default Route
+app.get("/", (req, res) => {
   res.send("Connected to server");
 });
 
 // Routes
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/", UserRoutes);
 app.use("/", TaskRoutes);
 app.use("/", AttendenceRoutes);
@@ -48,75 +158,62 @@ app.use("/", EarlyLogoutRoutes);
 app.use("/", ProbationLetterRoutes);
 app.use("/", OfferLetterRoutes);
 app.use("/", MessageRoutes);
+app.use("/", ChatRoutes); // ChatRoutes now has `req.io`
 app.use("/", EventRoutes);
 app.use("/", DocumentRoutes);
 app.use("/", ReminderRoutes);
 app.use("/", ListRoutes);
 
-// // Listening
-// app.listen(PORT, async () => {
-//   try {
-//     await connection;
-//     console.log("MongoDB Connected Successfully");
-//   } catch (err) {
-//     console.log(err);
-//   }
-//   console.log(`Listening on PORT ${PORT}`);
-// });
-
-httpServer.listen(PORT, async () => {
-  try {
-    await connection;
-    console.log("MongoDB Connected Successfully");
-  } catch (err) {
-    console.log(err);
-  }
-  console.log(`Listening on PORT ${PORT}`);
-});
-
+// 🔹 *Socket.IO Configuration*
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  console.log(`✅ User connected: ${socket.id}`);
 
-  // Handle custom events here
-  socket.on("customEvent", (data) => {
-    console.log("Received custom event:", data);
-  });
+// Join a private chat room (for direct messaging)
+socket.on("joinRoom", (userId) => {
+  socket.join(userId);
+  console.log(`👥 User joined room: ${userId}`);
+});
 
-  // Handle disconnections
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
+// Join a group chat room
+socket.on("joinGroup", (groupId) => {
+  socket.join(groupId);
+  console.log(`👥 User joined group: ${groupId}`);
+});
+
+// Handle Sending Group Messages
+socket.on("sendGroupMessage", ({ sender, groupId, message }) => {
+  console.log(`📩 Group Message from ${sender} in ${groupId}:`, message);
+
+  if (!groupId) return console.error("⚠️ Group ID is missing");
+
+  // Emit message to all members in the group
+  io.to(groupId).emit("newGroupMessage", { sender, message });
 });
 
 
-// const server = http.createServer(app);
+  // Receive and Broadcast Messages
+  socket.on("sendMessage", ({ sender, receiver, message }) => {
+    console.log(`📩 Message Received from ${sender} to ${receiver}:`, message);
+    if (!receiver) return console.error("⚠️ Receiver ID is missing");
+    // Broadcast message only to the intended receiver
+    io.to(receiver).emit("newMessage", { sender, message });
+  });
 
-// // Create a Socket.IO server using the same HTTP server instance
-// const io = socketIO(server);
+  // Handle Disconnection
+  socket.on("disconnect", () => {
+    console.log(`❌ User disconnected: ${socket.id}`);
+  });
+});
 
-// // Socket.io event handlers
-// io.on("connection", (socket) => {
-//   console.log("User connected:", socket.id);
-
-//   // Listen for new chat messages
-//   socket.on("newMessage", (message) => {
-//     io.emit("newMessage", message);
-//   });
-
-//   // Handle user disconnection
-//   socket.on("disconnect", () => {
-//     console.log("User disconnected:", socket.id);
-//   });
-// });
-
-// // Start the combined server
-// server.listen(PORT, async () => {
-//   try {
-//     // Optionally add MongoDB connection check here
-//     await connection;
-//     console.log("MongoDB Connected Successfully");
-//   } catch (err) {
-//     console.log(err);
-//   }
-//   console.log(`Server running on PORT ${PORT}`);
-// });
+// 🔹 *Start Server After Connecting to MongoDB*
+connection
+  .then(() => {
+    console.log("🚀 MongoDB Connected Successfully");
+    httpServer.listen(PORT, () => {
+      console.log(`🎯 Server running on PORT ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB Connection Error:", err);
+    process.exit(1);
+  });
