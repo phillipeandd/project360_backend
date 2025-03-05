@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {
   sendMessage,
+  getUserChats,
   getMessages,
   sendInvitation,
   acceptInvitation,
@@ -26,6 +27,7 @@ const upload = multer({ storage });
 
 router.post("/send", upload.array("files", 10), sendMessage);
 router.get("/messages/:userId", getMessages);
+router.get("/chats/:userId", getUserChats);
 router.post("/invite", sendInvitation);
 router.post("/invite/accept", acceptInvitation);
 router.post("/invite/reject", rejectInvitation);

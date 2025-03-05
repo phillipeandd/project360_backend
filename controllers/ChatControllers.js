@@ -39,6 +39,83 @@ exports.sendMessage = async (req, res) => {
   }
 };
 
+exports.getUserChats = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Fetch one-on-one chats where user is sender or receiver
+    const directChats = await MessageModel.aggregate([
+      {
+        $match: {
+          $or: [{ sender: userId }, { receiver: userId }],
+        },
+      },
+      {
+        $sort: { createdAt: -1 }, // Sort messages by latest first
+      },
+      {
+        $group: {
+          _id: {
+            user: {
+              $cond: [{ $eq: ["$sender", userId] }, "$receiver", "$sender"],
+            },
+          },
+          lastMessage: { $first: "$message" }, // Get latest message
+          lastMessageAt: { $first: "$createdAt" },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id.user",
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+      { $unwind: "$userDetails" },
+      {
+        $project: {
+          _id: "$userDetails._id",
+          name: "$userDetails.name",
+          profileImage: "$userDetails.profileImage",
+          lastMessage: 1,
+          lastMessageAt: 1,
+        },
+      },
+      { $sort: { lastMessageAt: -1 } },
+    ]);
+
+    // Fetch group chats where user is a member
+    const groupChats = await ChatRoomModel.find({
+      members: userId,
+      isGroup: true,
+    })
+      .populate("admin", "name profileImage")
+      .populate("members", "name profileImage") // Fetch members' details
+      .sort({ updatedAt: -1 });
+
+    const formattedGroups = groupChats.map((group) => ({
+      _id: group._id,
+      name: group.name,
+      profileImage: group.admin?.profileImage || "", // Use admin profile pic as fallback
+      lastMessage: "Group Chat",
+      members: group.members.map((member) => ({
+        _id: member._id,
+        name: member.name,
+        profileImage: member.profileImage,
+      })),
+    }));
+
+    // Merge both direct and group chats
+    const chats = [...directChats, ...formattedGroups];
+
+    res.status(200).json({ success: true, chats });
+  } catch (error) {
+    console.error("Error fetching user chats:", error);
+    res.status(500).json({ success: false, message: "Error fetching chats" });
+  }
+};
+
 exports.getMessages = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -148,13 +225,11 @@ exports.sendGroupMessage = async (req, res) => {
     if (req.io) {
       req.io.to(groupId).emit("newGroupMessage", newMessage);
     }
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Message sent to group",
-        data: newMessage,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Message sent to group",
+      data: newMessage,
+    });
   } catch (error) {
     console.error("❌ Error sending group message:", error);
     res
@@ -162,7 +237,6 @@ exports.sendGroupMessage = async (req, res) => {
       .json({ success: false, message: "Error sending message", error });
   }
 };
-
 
 // ✅ 3. Get Messages from Group
 exports.getGroupMessages = async (req, res) => {
