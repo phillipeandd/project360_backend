@@ -100,8 +100,8 @@ exports.getMessagesByUserId = async (req, res) => {
     const messages = await MessageModel.find({
       $or: [{ sender: userId }, { receiver: userId }],
     })
-      .populate("sender", "name profileImage")
-      .populate("receiver", "name profileImage")
+      .populate("sender", "path sudo_name profileImage")
+      .populate("receiver", "path sudo_name profileImage")
       .sort({ createdAt: -1 });
 
     // Group messages by conversation (sender-receiver pair)
