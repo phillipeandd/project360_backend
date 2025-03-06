@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
     blood_group: { type: String, required: true },
     designation: { type: String, required: true },
     department: { type: String, required: true },
-    marital_status: { type: String, required: true },
+    marital_status: { type: String },
     doj: { type: Date, required: true },
     password: { type: String, required: true },
     confirm_password: { type: String, required: true },

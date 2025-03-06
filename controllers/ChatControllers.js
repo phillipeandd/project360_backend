@@ -39,7 +39,117 @@ exports.sendMessage = async (req, res) => {
   }
 };
 
-exports.getUserChats = async (req, res) => {
+exports.getMessagesByUserId2 = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Fetch messages where user is either sender or receiver
+    const messages = await MessageModel.find({
+      $or: [{ sender: userId }, { receiver: userId }],
+    })
+      .populate("sender", "name profileImage") // Populate sender details
+      .populate("receiver", "name profileImage") // Populate receiver details
+      .sort({ createdAt: -1 }); // Sort in ascending order (oldest to newest)
+
+    // Group messages by conversation (sender-receiver pair)
+    const chatMap = new Map();
+
+    messages.forEach((msg) => {
+      // Determine the conversation ID (Ensures uniqueness)
+      const chatId =
+        msg.sender._id.toString() === userId
+          ? msg.receiver._id.toString()
+          : msg.sender._id.toString();
+
+      // If chat doesn't exist in map, initialize it
+      if (!chatMap.has(chatId)) {
+        chatMap.set(chatId, {
+          user: msg.sender._id.toString() === userId ? msg.receiver : msg.sender,
+          messages: [],
+        });
+      }
+
+      // Push message into the corresponding chat
+      chatMap.get(chatId).messages.push({
+        _id: msg._id,
+        text: msg.message,
+        sender: msg.sender,
+        createdAt: msg.createdAt,
+        files: msg.files || [],
+      });
+    });
+
+    // Convert Map to array for response
+    const chatList = Array.from(chatMap.values());
+
+    res.status(200).json({ success: true, chats: chatList });
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+exports.getMessagesByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Ensure userId is a string for comparison
+    const userIdStr = userId.toString();
+
+    // Fetch messages where user is either sender or receiver
+    const messages = await MessageModel.find({
+      $or: [{ sender: userId }, { receiver: userId }],
+    })
+      .populate("sender", "name profileImage")
+      .populate("receiver", "name profileImage")
+      .sort({ createdAt: -1 });
+
+    // Group messages by conversation (sender-receiver pair)
+    const chatMap = new Map();
+
+    messages.forEach((msg) => {
+      if (!msg.sender || !msg.receiver) {
+        console.warn("Skipping message with missing sender/receiver:", msg._id);
+        return; // Skip messages with missing sender/receiver
+      }
+
+      // Convert ObjectId to string safely
+      const senderId = msg.sender?._id?.toString();
+      const receiverId = msg.receiver?._id?.toString();
+
+      // Determine the conversation ID (Ensures uniqueness)
+      const chatId = senderId === userIdStr ? receiverId : senderId;
+
+      // If chat doesn't exist in map, initialize it
+      if (!chatId || !chatMap.has(chatId)) {
+        chatMap.set(chatId, {
+          user: senderId === userIdStr ? msg.receiver : msg.sender,
+          messages: [],
+        });
+      }
+
+      // Push message into the corresponding chat
+      chatMap.get(chatId).messages.push({
+        _id: msg._id,
+        text: msg.message,
+        sender: msg.sender,
+        createdAt: msg.createdAt,
+        files: msg.files || [],
+      });
+    });
+
+    // Convert Map to array for response
+    const chatList = Array.from(chatMap.values());
+
+    res.status(200).json({ success: true, chats: chatList });
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+
+exports.getGroupByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -94,20 +204,32 @@ exports.getUserChats = async (req, res) => {
       .populate("members", "name profileImage") // Fetch members' details
       .sort({ updatedAt: -1 });
 
-    const formattedGroups = groupChats.map((group) => ({
-      _id: group._id,
-      name: group.name,
-      profileImage: group.admin?.profileImage || "", // Use admin profile pic as fallback
-      lastMessage: "Group Chat",
-      members: group.members.map((member) => ({
-        _id: member._id,
-        name: member.name,
-        profileImage: member.profileImage,
-      })),
-    }));
+    // Fetch last message for each group chat
+    const formattedGroups = await Promise.all(
+      groupChats.map(async (group) => {
+        const lastMessage = await MessageModel.findOne({ chatRoom: group._id })
+          .sort({ createdAt: -1 })
+          .populate("sender", "name profileImage");
 
-    // Merge both direct and group chats
-    const chats = [...directChats, ...formattedGroups];
+        return {
+          _id: group._id,
+          name: group.name,
+          profileImage: group.admin?.profileImage || "", // Use admin profile pic as fallback
+          lastMessage: lastMessage ? lastMessage.message : "No messages yet",
+          lastMessageAt: lastMessage ? lastMessage.createdAt : group.updatedAt,
+          members: group.members.map((member) => ({
+            _id: member._id,
+            name: member.name,
+            profileImage: member.profileImage,
+          })),
+        };
+      })
+    );
+
+    // Merge both direct and group chats and sort them by last message timestamp
+    const chats = [...directChats, ...formattedGroups].sort(
+      (a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt)
+    );
 
     res.status(200).json({ success: true, chats });
   } catch (error) {
@@ -116,7 +238,11 @@ exports.getUserChats = async (req, res) => {
   }
 };
 
-exports.getMessages = async (req, res) => {
+
+
+
+
+exports.getMessages2 = async (req, res) => {
   try {
     const { userId } = req.params;
     const messages = await MessageModel.find({ receiver: userId }).populate(
