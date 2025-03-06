@@ -10,6 +10,7 @@ const {
   createGroup,
   sendGroupMessage,
   getGroupMessages,
+  getUserChatList,
 } = require("../controllers/ChatControllers");
 
 const multer = require("multer");
@@ -27,7 +28,7 @@ const upload = multer({ storage });
 
 router.post("/send", upload.array("files", 10), sendMessage);
 router.get("/messages/:userId", getMessagesByUserId);
-
+// router.get("/messages/chatlist/:userId", getUserChatList);
 router.post("/invite", sendInvitation);
 router.post("/invite/accept", acceptInvitation);
 router.post("/invite/reject", rejectInvitation);

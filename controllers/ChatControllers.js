@@ -5,13 +5,15 @@ const ChatRoomModel = require("../models/ChatRoomModel");
 
 exports.sendMessage = async (req, res) => {
   try {
-    const { files } = req;
+    const { files = [] } = req;
     const { sender, receiver, message } = req.body;
 
-    const fileArray = files.map((file) => ({
-      name: file.originalname,
-      path: file.path,
-    }));
+    const fileArray = Array.isArray(files)
+    ? files.map((file) => ({
+        name: file.originalname,
+        path: file.path,
+      }))
+    : [];
 
     if (!sender || !receiver || !message) {
       return res.status(400).json({ success: false, message: "Invalid data" });
@@ -39,55 +41,55 @@ exports.sendMessage = async (req, res) => {
   }
 };
 
-exports.getMessagesByUserId2 = async (req, res) => {
+exports.sendMessage2 = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { files } = req;
+    const { sender, receiver, chatRoom, message } = req.body;
 
-    // Fetch messages where user is either sender or receiver
-    const messages = await MessageModel.find({
-      $or: [{ sender: userId }, { receiver: userId }],
-    })
-      .populate("sender", "name profileImage") // Populate sender details
-      .populate("receiver", "name profileImage") // Populate receiver details
-      .sort({ createdAt: -1 }); // Sort in ascending order (oldest to newest)
+    // Ensure at least a receiver (for direct messages) or a chat room (for group chats) is provided
+    if (!sender || (!receiver && !chatRoom) || (!message && (!files || files.length === 0))) {
+      return res.status(400).json({ success: false, message: "Invalid data: Missing sender, recipient, or message" });
+    }
 
-    // Group messages by conversation (sender-receiver pair)
-    const chatMap = new Map();
+    // Process files if any are provided
+    const fileArray = files
+      ? files.map((file) => ({
+          name: file.originalname,
+          path: file.path,
+        }))
+      : [];
 
-    messages.forEach((msg) => {
-      // Determine the conversation ID (Ensures uniqueness)
-      const chatId =
-        msg.sender._id.toString() === userId
-          ? msg.receiver._id.toString()
-          : msg.sender._id.toString();
-
-      // If chat doesn't exist in map, initialize it
-      if (!chatMap.has(chatId)) {
-        chatMap.set(chatId, {
-          user: msg.sender._id.toString() === userId ? msg.receiver : msg.sender,
-          messages: [],
-        });
-      }
-
-      // Push message into the corresponding chat
-      chatMap.get(chatId).messages.push({
-        _id: msg._id,
-        text: msg.message,
-        sender: msg.sender,
-        createdAt: msg.createdAt,
-        files: msg.files || [],
-      });
+    // Create new message
+    const newMessage = new MessageModel({
+      sender,
+      receiver: receiver || null, // Set to null if it's a group message
+      chatRoom: chatRoom || null, // Set to null if it's a direct message
+      message,
+      files: fileArray,
     });
 
-    // Convert Map to array for response
-    const chatList = Array.from(chatMap.values());
+    await newMessage.save();
 
-    res.status(200).json({ success: true, chats: chatList });
+    // Emit message to the receiver (direct chat) or the chat room (group chat)
+    if (req.io) {
+      if (receiver) {
+        // Direct message
+        req.io.to(receiver).emit("newMessage", newMessage);
+      } else if (chatRoom) {
+        // Group message
+        req.io.to(chatRoom).emit("newGroupMessage", newMessage);
+      }
+    }
+
+    res.status(200).json({ success: true, message: "Message sent", data: newMessage });
   } catch (error) {
-    console.error("Error fetching messages:", error);
+    console.error("Error sending message:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+
+
 
 exports.getMessagesByUserId = async (req, res) => {
   try {
