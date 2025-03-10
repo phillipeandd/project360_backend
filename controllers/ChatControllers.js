@@ -15,7 +15,7 @@ exports.sendMessage = async (req, res) => {
       }))
     : [];
 
-    if (!sender || !receiver || !message) {
+    if (!sender || !receiver) {
       return res.status(400).json({ success: false, message: "Invalid data" });
     }
 
@@ -269,6 +269,24 @@ exports.sendInvitation = async (req, res) => {
   }
 };
 
+exports.getInvitationsBySender = async (req, res) => {
+  try {
+    const { senderId } = req.params; // Assuming senderId is passed as a URL parameter
+
+    const invitations = await InvitationModel.find({ sender: senderId });
+
+    if (!invitations.length) {
+      return res.status(404).json({ success: false, message: "No invitations found for this sender" });
+    }
+
+    res.status(200).json({ success: true, invitations });
+  } catch (error) {
+    console.error("Error fetching invitations:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+
 exports.acceptInvitation = async (req, res) => {
   try {
     const { invitationId } = req.body;
@@ -373,7 +391,7 @@ exports.getGroupMessages = async (req, res) => {
   try {
     const messages = await MessageModel.find({ chatRoom: groupId }).populate(
       "sender"
-    );
+    ).sort({ createdAt: -1 });;
     res.status(200).json(messages);
   } catch (error) {
     res
