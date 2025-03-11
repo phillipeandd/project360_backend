@@ -377,7 +377,7 @@ exports.getInvitationsBySender = async (req, res) => {
 };
 
 
-exports.acceptInvitation = async (req, res) => {
+exports.acceptInvitation2 = async (req, res) => {
   try {
     const { invitationId } = req.body;
     await InvitationModel.findByIdAndUpdate(invitationId, {
@@ -389,6 +389,48 @@ exports.acceptInvitation = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+exports.acceptInvitation = async (req, res) => {
+  try {
+    const { invitationId } = req.body;
+
+    // Update invitation status
+    const invitation = await InvitationModel.findByIdAndUpdate(
+      invitationId,
+      { status: "accepted" },
+      { new: true }
+    ).populate("sender receiver", "_id name"); // Fetch sender & receiver details
+
+    if (!invitation) {
+      return res.status(404).json({ success: false, message: "Invitation not found" });
+    }
+
+    // Auto-send a message upon acceptance
+    const autoMessage = new MessageModel({
+      sender: invitation.sender._id,
+      receiver: invitation.receiver._id,
+      message: `🎉 Congratulations your request has been accepted!!`,
+      files: [], // No files in this case
+    });
+
+    await autoMessage.save();
+
+    // Emit message event if socket.io is available
+    if (req.io) {
+      req.io.to(invitation.sender._id.toString()).emit("newMessage", autoMessage);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Invitation accepted and message sent",
+      data: autoMessage,
+    });
+  } catch (error) {
+    console.error("Error accepting invitation:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 
 exports.rejectInvitation = async (req, res) => {
   try {
@@ -494,5 +536,108 @@ exports.getGroupMessages = async (req, res) => {
     res
       .status(500)
       .json({ success: false, message: "Error fetching messages", error });
+  }
+};
+
+// Remove members from group
+exports.removeMembersFromGroup = async (req, res) => {
+  try {
+    const { groupId, memberIds } = req.body;
+
+    // Ensure memberIds is an array
+    if (!Array.isArray(memberIds) || memberIds.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid member IDs" });
+    }
+
+    const updatedGroup = await ChatRoomModel.findByIdAndUpdate(
+      groupId,
+      { $pull: { members: { $in: memberIds } } }, // Remove members
+      { new: true }
+    ).populate("members", "name profileImage");
+
+    if (!updatedGroup) {
+      return res.status(404).json({ success: false, message: "Group not found" });
+    }
+
+    res.status(200).json({ success: true, group: updatedGroup });
+  } catch (error) {
+    console.error("Error removing members:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+exports.updateGroupMembers = async (req, res) => {
+  try {
+    const { groupId, memberIds, action } = req.body; // action: "add" or "remove"
+
+    // Validate request
+    if (!Array.isArray(memberIds) || memberIds.length === 0) {
+      return res.status(400).json({ success: false, message: "Invalid member IDs" });
+    }
+
+    let updateQuery = {};
+
+    if (action === "add") {
+      updateQuery = { $addToSet: { members: { $each: memberIds } } }; // Add members
+    } else if (action === "remove") {
+      updateQuery = { $pull: { members: { $in: memberIds } } }; // Remove members
+    } else {
+      return res.status(400).json({ success: false, message: "Invalid action" });
+    }
+
+    // Update group
+    const updatedGroup = await ChatRoomModel.findByIdAndUpdate(groupId, updateQuery, { new: true })
+      .populate("members", "name profileImage");
+
+    if (!updatedGroup) {
+      return res.status(404).json({ success: false, message: "Group not found" });
+    }
+
+    res.status(200).json({ success: true, group: updatedGroup });
+  } catch (error) {
+    console.error("Error updating group members:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+
+// Delete group by groupId
+exports.deleteGroup = async (req, res) => {
+  try {
+    const { groupId } = req.body;
+
+    const deletedGroup = await ChatRoomModel.findByIdAndDelete(groupId);
+
+    if (!deletedGroup) {
+      return res.status(404).json({ success: false, message: "Group not found" });
+    }
+
+    // Delete all messages related to this group
+    await MessageModel.deleteMany({ chatRoom: groupId });
+
+    res.status(200).json({ success: true, message: "Group deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting group:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+// Delete a specific group message by message _id
+exports.deleteMessageById = async (req, res) => {
+  try {
+    const { messageId } = req.body;
+
+    const deletedMessage = await MessageModel.findByIdAndDelete(messageId);
+
+    if (!deletedMessage) {
+      return res.status(404).json({ success: false, message: "Message not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Message deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting message:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

@@ -7,11 +7,15 @@ const {
   sendInvitation,
   acceptInvitation,
   rejectInvitation,
+  getInvitationsBySender,
   createGroup,
   sendGroupMessage,
   getGroupMessages,
-  getUserChatList,
-  getInvitationsBySender
+  removeMembersFromGroup,
+  updateGroupMembers,
+  deleteGroup,
+  deleteMessageById,
+  
 } = require("../controllers/ChatControllers");
 
 const multer = require("multer");
@@ -44,5 +48,22 @@ router.post("/group/send", upload.array("files", 10), sendGroupMessage);
 router.get("/group/:userId", getGroupByUserId);
 // Get Group Messages by Group ID
 router.get("/group/messages/:groupId", getGroupMessages);
+// Remove members from a group
+router.put("/remove-group-members", removeMembersFromGroup);
+// Add or remove members from a group
+router.put("/update-members", updateGroupMembers);
+
+// Delete a group by groupId
+router.delete("/delete-group", deleteGroup);
+// Delete a specific message by message _id
+router.delete("/delete-message", deleteMessageById);
 
 module.exports = router;
+
+
+// Add or remove members from a group
+// {
+//   "groupId": "67cfcdb2529b2c86c4daba4b",
+//   "memberIds": ["649178fad0a79562e2057326"],
+//   "action": "add" or "remove"
+// }
