@@ -26,7 +26,6 @@ exports.sendMessage = async (req, res) => {
       files: fileArray,
     });
     await newMessage.save();
-
     // Check if io is defined before using it
     if (req.io) {
       req.io.to(receiver).emit("newMessage", newMessage);
@@ -315,11 +314,18 @@ exports.rejectInvitation = async (req, res) => {
 
 // ✅ 1. Create Group Chat
 exports.createGroup = async (req, res) => {
+  const { files = [] } = req;
   const { name, members, admin } = req.body;
+  const fileArray = Array.isArray(files)
+  ? files.map((file) => ({
+      name: file.originalname,
+      path: file.path,
+    }))
+  : [];
 
   try {
     // Create new group
-    const newGroup = new ChatRoomModel({ name, members, admin, isGroup: true });
+    const newGroup = new ChatRoomModel({files: fileArray, name, members, admin, isGroup: true });
     await newGroup.save();
 
     res.status(201).json({ success: true, group: newGroup });

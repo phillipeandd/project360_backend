@@ -37,7 +37,7 @@ router.post("/invite/accept", acceptInvitation);
 router.post("/invite/reject", rejectInvitation);
 
 // Create Group
-router.post("/group/create", createGroup);
+router.post("/group/create", upload.array("files", 1), createGroup);
 // Send Message to Group
 router.post("/group/send", upload.array("files", 10), sendGroupMessage);
 // Get Group by User ID
