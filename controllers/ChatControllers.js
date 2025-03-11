@@ -150,7 +150,7 @@ exports.getMessagesByUserId = async (req, res) => {
 };
 
 
-exports.getGroupByUserId = async (req, res) => {
+exports.getGroupByUserId2 = async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -188,7 +188,7 @@ exports.getGroupByUserId = async (req, res) => {
         $project: {
           _id: "$userDetails._id",
           name: "$userDetails.name",
-          profileImage: "$userDetails.profileImage",
+          profileImage: "$userDetails.files",
           lastMessage: 1,
           lastMessageAt: 1,
         },
@@ -239,6 +239,97 @@ exports.getGroupByUserId = async (req, res) => {
   }
 };
 
+exports.getGroupByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Fetch one-on-one chats where user is sender or receiver
+    const directChats = await MessageModel.aggregate([
+      {
+        $match: {
+          $or: [{ sender: userId }, { receiver: userId }],
+        },
+      },
+      { $sort: { createdAt: -1 } }, // Sort messages by latest first
+      {
+        $group: {
+          _id: {
+            user: {
+              $cond: [{ $eq: ["$sender", userId] }, "$receiver", "$sender"],
+            },
+          },
+          lastMessage: { $first: "$message" },
+          lastMessageAt: { $first: "$createdAt" },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id.user",
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+      { $unwind: "$userDetails" },
+      {
+        $project: {
+          _id: "$userDetails._id",
+          name: "$userDetails.name",
+          profileImage: {
+            $arrayElemAt: ["$userDetails.files.path", 0], // Get first file's path
+          },
+          lastMessage: 1,
+          lastMessageAt: 1,
+        },
+      },
+      { $sort: { lastMessageAt: -1 } },
+    ]);
+
+    // Fetch group chats where user is a member
+    const groupChats = await ChatRoomModel.find({
+      members: userId,
+      isGroup: true,
+    })
+      .populate("admin", "name files")
+      .populate("members", "name files")
+      .sort({ updatedAt: -1 });
+
+    // Fetch last message for each group chat
+    const formattedGroups = await Promise.all(
+      groupChats.map(async (group) => {
+        const lastMessage = await MessageModel.findOne({ chatRoom: group._id })
+          .sort({ createdAt: -1 })
+          .populate("sender", "name files");
+
+        return {
+          _id: group._id,
+          name: group.name,
+          profileImage:
+            group.files?.length > 0
+              ? group.files[0].path // Use group's profile image
+              : group.admin?.files?.[0]?.path || "", // Fallback to admin's image
+          lastMessage: lastMessage ? lastMessage.message : "No messages yet",
+          lastMessageAt: lastMessage ? lastMessage.createdAt : group.updatedAt,
+          members: group.members.map((member) => ({
+            _id: member._id,
+            name: member.name,
+            profileImage: member.files?.length > 0 ? member.files[0].path : "",
+          })),
+        };
+      })
+    );
+
+    // Merge both direct and group chats and sort them by last message timestamp
+    const chats = [...directChats, ...formattedGroups].sort(
+      (a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt)
+    );
+
+    res.status(200).json({ success: true, chats });
+  } catch (error) {
+    console.error("Error fetching user chats:", error);
+    res.status(500).json({ success: false, message: "Error fetching chats" });
+  }
+};
 
 
 
