@@ -116,7 +116,7 @@ const EventRoutes = require("./routes/EventRoutes");
 const DocumentRoutes = require("./routes/DocumentRoutes");
 const ReminderRoutes = require("./routes/ReminderRoutes");
 const ListRoutes = require("./routes/ListRoutes");
-
+const CtsRoutes = require("./routes/CtsRoutes");
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -163,6 +163,7 @@ app.use("/", EventRoutes);
 app.use("/", DocumentRoutes);
 app.use("/", ReminderRoutes);
 app.use("/", ListRoutes);
+app.use("/", CtsRoutes);
 
 // 🔹 *Socket.IO Configuration*
 io.on("connection", (socket) => {
