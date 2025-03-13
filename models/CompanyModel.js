@@ -16,21 +16,21 @@ const companySchema = new mongoose.Schema(
     city: { type: String, default: "" },
     state: { type: String, default: "" },
     zip_code: { type: String, default: "" },
-    employee_id: { type: String, required: true },
+    employee_id: { type: String, required: true, unique: true },
+    role: { type: String, default: "company"  },
     company_type: { type: String, default: "" },
     industry_type: { type: String, default: "" },
     document_type: { type: String, default: "" },
     files: { type: [fileSchema], default: [] },
     password: { type: String, required: true },
-    confirm_password: { type: String, required: true },
     aadhar: { type: String, required: true },
+    logo: { type: {}, default: "" },
     created_by: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    name: String,
-    path: String,
+ 
   },
   { timestamps: true }
 );
