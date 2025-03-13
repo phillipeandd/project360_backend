@@ -176,6 +176,7 @@ exports.loginCompany = async (req, res) => {
             state: company.state,
             zip_code: company.zip_code,
             employee_id: company.employee_id,
+            role: company.role,
             company_type: company.company_type,
             industry_type: company.industry_type,
             document_type: company.document_type,
