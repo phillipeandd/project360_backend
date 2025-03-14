@@ -15,9 +15,11 @@ const storage = multer.diskStorage({
   const upload = multer({ storage });
 
 router.post("/signuser", upload.single("file"), UserController.newUserRegister);
+router.post("/newUserById", upload.single("file"), UserController.newUserById);
 router.post("/login", UserController.login);
 
 router.get("/users", UserController.getUser);
+router.get("/getUserById", UserController.getUserById);
 router.get("/singleUser/:id", UserController.getSingleUser);
 router.delete("/deleteUser/:id", UserController.deleteUser);
 // router.patch("/editUser/:id", UserController.editUser)

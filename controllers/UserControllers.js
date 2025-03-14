@@ -94,7 +94,113 @@ const newUserRegister = async (req, res) => {
       });
 
       await new_user.save();
-      res.send({ Message: "Signup succesfull..", new_user });
+      res.send({ Message: "Employee Registered Succesfull", new_user });
+    }
+  });
+};
+
+const newUserById = async (req, res) => {
+  const { file } = req;
+  const {
+    first_name,
+    last_name,
+    father_name,
+    mother_name,
+    employee_id,
+    email,
+    alternate_email,
+    phone,
+    alternate_phone,
+    dob,
+    gender,
+    country,
+    city,
+    state,
+    zip_code,
+    sudo_name,
+    blood_group,
+    designation,
+    department,
+    marital_status,
+    doj,
+    password,
+    confirm_password,
+    role,
+    account_holder_name,
+    bank_name,
+    ifsc,
+    account_number,
+    branch_name,
+    upi_id,
+    registered_phone,
+    aadhar,
+    adminId,
+    companyId,
+  } = req.body;
+
+  // Check if password and confirm_password match
+  if (password !== confirm_password) {
+    res.send({ Message: "Password and confirm password do not match." });
+    return;
+  }
+
+  if (!adminId && !companyId) {
+    return res
+      .status(400)
+      .send({ message: "Either adminId or companyId is required to On Board" });
+  }
+
+  const existing_user = await UserModel.findOne({ employee_id });
+
+  if (existing_user) {
+    res.send({ Message: "User already exist" });
+    return;
+  }
+  bcrypt.hash(password, 4, async function (err, hash) {
+    if (err) {
+      res.send({ Message: "Registration Failed", err });
+    } else {
+      const new_user = new UserModel({
+        first_name,
+        last_name,
+        father_name,
+        mother_name,
+        employee_id,
+        email,
+        alternate_email,
+        phone,
+        alternate_phone,
+        dob,
+        gender,
+        country,
+        city,
+        state,
+        zip_code,
+        sudo_name,
+        blood_group,
+        designation,
+        department,
+        marital_status,
+        doj,
+        password: hash,
+        confirm_password: hash,
+        role,
+        account_holder_name,
+        bank_name,
+        ifsc,
+        account_number,
+        branch_name,
+        upi_id,
+        registered_phone,
+        aadhar,
+        name: file.originalname,
+        path: file.path,
+        adminId: adminId || null,
+        companyId: companyId || null,
+      });
+
+      await new_user.save();
+      res.send({ Message: "Employee Registered Succesfull", new_user });
     }
   });
 };
@@ -158,6 +264,8 @@ const login = async (req, res) => {
         const employee_id = user.employee_id;
         const role = user.role;
         const id = user._id;
+        const adminId = user.adminId;
+        const companyId = user.companyId;
         const document = {
           name: name,
           path: path,
@@ -193,6 +301,8 @@ const login = async (req, res) => {
           registered_phone: registered_phone,
           aadhar: aadhar,
           token: token,
+          adminId: adminId || null,
+          companyId: companyId || null,
         };
         res.send({
           Message: "Login Successfull",
@@ -208,10 +318,6 @@ const login = async (req, res) => {
   }
 };
 
-
-
-
-
 // Get a user
 const getUser = async (req, res) => {
   try {
@@ -221,6 +327,32 @@ const getUser = async (req, res) => {
     }
     res.send(user);
   } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+// Get User By AdminId either by companyId
+const getUserById = async (req, res) => {
+  try {
+    const { companyId, adminId } = req.query; // Get filters from query parameters
+
+    let filter = {};
+
+    if (companyId) {
+      filter.companyId = companyId;
+    } else if (adminId) {
+      filter.adminId = adminId;
+    }
+
+    const user = await UserModel.find(filter);
+
+    if (!user || user.length === 0) {
+      return res.status(404).send({ message: "No user found" });
+    }
+
+    res.send(user);
+  } catch (error) {
+    console.error("Error fetching user", error);
     res.status(500).send(error);
   }
 };
@@ -292,8 +424,10 @@ const deleteUser = async (req, res) => {
 
 module.exports = {
   newUserRegister,
+  newUserById,
   login,
   getUser,
+  getUserById,
   getSingleUser,
   deleteUser,
   editUser,
