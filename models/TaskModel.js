@@ -47,6 +47,8 @@ const taskSchema = new mongoose.Schema(
     cc: { type: [String], default: []  },
     task_status: { type: String, default: "Pending" },
     task_approval: { type: String, default: "On Hold" },
+    adminId :{type:mongoose.Schema.Types.ObjectId, ref: "User", required: false},
+    companyId :{type:mongoose.Schema.Types.ObjectId, ref: "Company", required: false},
   },
   { timestamps: true }
 );

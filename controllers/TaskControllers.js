@@ -82,6 +82,63 @@ const postMultipleEmployeeTask = async (req, res) => {
   }
 };
 
+const postMultipleEmployeeTaskById = async (req, res) => {
+  try {
+    const { files } = req;
+    const {
+      title,
+      description,
+      department,
+      employee,
+      priority,
+      start_date,
+      end_date,
+      hourly,
+      quarterly,
+      assigned_by,
+      cc,
+      task_status,
+      task_approval,
+      adminId,
+      companyId,
+    } = req.body;
+
+    if(!adminId && !companyId) {
+      return res.status(400).send({ message: "Either adminId or companyId is required to assign the task" });
+    }
+
+    const fileArray = files.map((file) => ({
+      name: file.originalname,
+      path: file.path,
+    }));
+
+    const new_task = new TaskModel({
+      title,
+      description,
+      department,
+      employee,
+      priority,
+      start_date,
+      end_date,
+      hourly,
+      quarterly,
+      assigned_by,
+      cc,
+      task_status,
+      task_approval,
+      files: fileArray,
+      adminId:adminId || null,
+      companyId: companyId || null,
+    });
+
+    await new_task.save();
+    res.status(200).send({ message: "Task posted successfully", new_task });
+  } catch (err) {
+    console.error("Error posting task", err);
+    res.status(500).send("Error posting task");
+  }
+};
+
 const assignTaskTest = async (req, res) => {
   try {
     const { files } = req;
@@ -133,6 +190,33 @@ const seeAllTask = async (req, res) => {
   }
 };
 
+// See all task By Id
+const seeAllTaskById = async (req, res) => {
+  try {
+    const { companyId, adminId } = req.query; // Get filters from query parameters
+
+    let filter = {};
+
+    if (companyId) {
+      filter.companyId = companyId;
+    } else if (adminId) {
+      filter.adminId = adminId;
+    }
+
+    const tasks = await TaskModel.find(filter);
+
+    if (!tasks || tasks.length === 0) {
+      return res.status(404).send({ message: "No tasks found" });
+    }
+
+    res.send(tasks);
+  } catch (error) {
+    console.error("Error fetching tasks", error);
+    res.status(500).send(error);
+  }
+};
+
+
 // Edit Tatsk
 const editTask = async (req, res) => {
   try {
@@ -165,7 +249,9 @@ module.exports = {
   assignTask,
   assignTaskTest,
   seeAllTask,
+  seeAllTaskById,
   deleteTask,
   editTask,
-  postMultipleEmployeeTask
+  postMultipleEmployeeTask,
+  postMultipleEmployeeTaskById
 };
