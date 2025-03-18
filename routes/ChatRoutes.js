@@ -36,7 +36,7 @@ router.get("/messages/:userId", getMessagesByUserId);
 // router.get("/messages/chatlist/:userId", getUserChatList);
 router.post("/invite", sendInvitation);
 router.get('/invitations/sender/:senderId', getInvitationsBySender);
-
+router.get('/invitations/receiver/:receiverId', getInvitationsBySender);
 router.post("/invite/accept", acceptInvitation);
 router.post("/invite/reject", rejectInvitation);
 

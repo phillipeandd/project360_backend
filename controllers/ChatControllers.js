@@ -2,7 +2,7 @@ const MessageModel = require("../models/MessageModel");
 const InvitationModel = require("../models/InvitationModel");
 const UserModel = require("../models/UserModel");
 const ChatRoomModel = require("../models/ChatRoomModel");
-
+const mongoose = require("mongoose");
 exports.sendMessage = async (req, res) => {
   try {
     const { files = [] } = req;
@@ -375,6 +375,30 @@ exports.getInvitationsBySender = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+exports.getInvitationsByReceiver = async (req, res) => {
+  try {
+    const { receiverId } = req.params;
+
+    // Convert receiverId to ObjectId
+    const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
+
+    const invitations = await InvitationModel.find({ receiver: receiverObjectId })
+      .populate("sender", "first_name last_name email")
+      .populate("receiver", "first_name last_name email")
+      .exec();
+
+    if (!invitations.length) {
+      return res.status(404).json({ success: false, message: "No invitations found for this receiver." });
+    }
+
+    res.status(200).json({ success: true, invitations });
+  } catch (error) {
+    console.error("Error fetching invitations:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 
 
 exports.acceptInvitation2 = async (req, res) => {
