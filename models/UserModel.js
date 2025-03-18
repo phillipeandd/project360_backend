@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema(
     first_name: { type: String, required: true },
     last_name: { type: String, default: "" },
     father_name: { type: String, default: "" },
-    mother_name: { type: String, required: true },
+    mother_name: { type: String, default: "" },
     employee_id: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     alternate_email: { type: String, default: "" },
